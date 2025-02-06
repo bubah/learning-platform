@@ -52,7 +52,9 @@ public class Course {
     
     @OneToMany(mappedBy = "course")
     private List<Lecture> lectures;
-	
+
+
+
 	@Column(name="price", nullable=true)
 	@Positive(message = "Price must be greater than zero")
 	private double price;
@@ -69,6 +71,14 @@ public class Course {
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 
+	public Course(){}
+
+	public Course(String title, String description, double price, String category) {
+		this.title = title;
+		this.description = description;
+		this.price = price;
+		this.category = category;
+	}
 
 	public UUID getId() {
 		return id;
