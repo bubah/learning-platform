@@ -1,7 +1,9 @@
 package com.learning_platform.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
+import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -22,7 +24,7 @@ import lombok.Data;
 		@Id
 		@GeneratedValue(generator = "uuid2")
 		@Column(name="lecture_id")
-		private long id;
+		private UUID id;
 		
 		@ManyToOne
 		@JoinColumn(name="course_id")
@@ -30,10 +32,12 @@ import lombok.Data;
 		
 		
 		@Column(nullable=false, unique =true, name="title")
-		private String title; 
-		
-		private String video_url; 
+		@NotBlank(message="title must be provide")
+		private String title;
 
+		private String video_url;
+
+		@NotBlank(message="description must be provide")
 		private String description;
 		
 		
@@ -45,11 +49,20 @@ import lombok.Data;
 		@UpdateTimestamp
 		private LocalDateTime updatedAt;
 
-		public long getId() {
+
+		public Lecture(){}
+
+		public Lecture(String title, String video_url, String description) {
+			this.title = title;
+			this.video_url = video_url;
+			this.description = description;
+		}
+
+		public UUID getId() {
 			return id;
 		}
 
-		public void setId(long id) {
+		public void setId(UUID id) {
 			this.id = id;
 		}
 
