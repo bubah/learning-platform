@@ -1,6 +1,7 @@
 package com.learning_platform.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -21,7 +22,7 @@ public class Section {
 	@Id
 	@GeneratedValue(generator = "uuid2")
 	@Column(name="section_id")
-	private long id;
+	private UUID id;
 	
 	@ManyToOne
 	@JoinColumn(name="lecture_id")
@@ -45,11 +46,11 @@ public class Section {
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
 
-	public long getId() {
+	public UUID getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(UUID id) {
 		this.id = id;
 	}
 
