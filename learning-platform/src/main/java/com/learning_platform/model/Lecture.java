@@ -1,19 +1,19 @@
 package com.learning_platform.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.learning_platform.dto.LectureDTO;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.Data;
 
 	@Entity
@@ -22,13 +22,13 @@ import lombok.Data;
 	public class Lecture {
 		
 		@Id
-		@GeneratedValue(generator = "uuid2")
 		@Column(name="lecture_id")
-		private UUID id;
-		
+		private UUID id = UUID.randomUUID();
+
 		@ManyToOne
 		@JoinColumn(name="course_id")
-		private Course course; 
+//		@JsonBackReference  // Prevents infinite recursion
+		private Course course;
 		
 		
 		@Column(nullable=false, unique =true, name="title")
@@ -39,6 +39,10 @@ import lombok.Data;
 
 		@NotBlank(message="description must be provide")
 		private String description;
+
+		@OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
+//		@JsonManagedReference
+		private List<Section> sections;
 		
 		
 		@Column(name="created_at", nullable=false, updatable=false)
@@ -52,10 +56,32 @@ import lombok.Data;
 
 		public Lecture(){}
 
-		public Lecture(String title, String video_url, String description) {
+		public Lecture(LectureDTO lectureDTO){
+			this.title = lectureDTO.getTitle();
+			this.description = lectureDTO.getDescription();
+			this.video_url = lectureDTO.getVideo_url();
+			List<Section> sections = new ArrayList<>();
+
+			lectureDTO.getSections().forEach(sectionDTO -> {
+				Section section = new Section(sectionDTO);
+				section.setLecture(this);
+				sections.add(section);
+
+			});
+
+			this.sections = sections;
+
+		}
+
+		public Lecture(String title, String video_url, String description, List<Section> sections) {
 			this.title = title;
 			this.video_url = video_url;
 			this.description = description;
+			this.sections = sections;
+
+			for(Section s: sections){
+				s.setLecture(this);
+			}
 		}
 
 		public UUID getId() {
@@ -84,6 +110,19 @@ import lombok.Data;
 
 		public String getVideo_url() {
 			return video_url;
+		}
+
+		public void setSections(List<Section> sections) {
+
+			sections.forEach(s -> {
+				s.setLecture(this);
+			});
+
+			this.sections = sections;
+		}
+
+		public List<Section> getSections() {
+			return sections;
 		}
 
 		public void setVideo_url(String video_url) {

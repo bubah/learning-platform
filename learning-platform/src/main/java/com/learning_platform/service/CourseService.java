@@ -1,10 +1,12 @@
 package com.learning_platform.service;
 
+import com.learning_platform.dto.CourseDTO;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Course;
 import com.learning_platform.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,8 +20,15 @@ public class CourseService {
     }
 
 
-    public List<Course> getAllCourses() {
-        return courseRepository.findAll();
+    public List<CourseDTO> getAllCourses() {
+        List<Course> courses = courseRepository.findAll();
+        List<CourseDTO> courseDTOs = new ArrayList<>();
+
+        courses.forEach(course -> {
+            CourseDTO courseDTO = new CourseDTO(course);
+            courseDTOs.add(courseDTO);
+        });
+        return courseDTOs;
     }
 
     public Course getCourseById(UUID id) {
@@ -27,8 +36,10 @@ public class CourseService {
 
     }
 
-    public Course createCourse(Course course) {
-        return courseRepository.save(course);
+    public CourseDTO createCourse(CourseDTO courseDTO) {
+        Course course = new Course(courseDTO);
+        Course savedCourse = courseRepository.save(course);
+        return new CourseDTO(savedCourse);
     }
 
     public Course updateCourse(UUID id, Course updatedCourse) {

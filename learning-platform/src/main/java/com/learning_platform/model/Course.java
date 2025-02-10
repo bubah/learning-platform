@@ -1,24 +1,21 @@
 package com.learning_platform.model;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.learning_platform.dto.CourseDTO;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
@@ -28,10 +25,9 @@ import lombok.Data;
 public class Course {
 	
 	
-	@Id 
-	@GeneratedValue(generator = "uuid2")
+	@Id
 	@Column(name="course_id")
-	private UUID id;
+	private UUID id = UUID.randomUUID();
 
 	@NotBlank(message = "Title is required")
 	@Size(max = 100, message = "Title cannot exceed 100 characters")
@@ -49,15 +45,15 @@ public class Course {
     @JoinColumn(name = "instructor_id")
 //	@NotNull(message = "Instructor must be provided")// Foreign key column to Instructor table
     private Instructor instructor;
-    
-    @OneToMany(mappedBy = "course")
-    private List<Lecture> lectures;
 
+	@OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
+//	@JsonManagedReference  // Prevents infinite recursion
+	private List<Lecture> lectures;
 
 
 	@Column(name="price", nullable=true)
 	@Positive(message = "Price must be greater than zero")
-	private double price;
+	private Double price;
 
 	@NotBlank(message = "Category is required")
 	@Column(name="category")
@@ -73,12 +69,23 @@ public class Course {
 
 	public Course(){}
 
-	public Course(String title, String description, double price, String category) {
-		this.title = title;
-		this.description = description;
-		this.price = price;
-		this.category = category;
+	public Course(CourseDTO courseDTO) {
+		this.title = courseDTO.getTitle();
+		this.description = courseDTO.getDescription();
+		this.price = courseDTO.getPrice();
+		this.category = courseDTO.getCategory();
+		List<Lecture> lectures = new ArrayList<Lecture>();
+
+		courseDTO.getLectures().forEach(lectureDTO -> {
+			Lecture lecture = new Lecture(lectureDTO);
+			lecture.setCourse(this);
+			lectures.add(lecture);
+
+		});
+
+		this.lectures = lectures;
 	}
+
 
 	public UUID getId() {
 		return id;
@@ -117,14 +124,18 @@ public class Course {
 	}
 
 	public void setLectures(List<Lecture> lectures) {
+		lectures.forEach(l -> {
+			l.setCourse(this);
+		});
+
 		this.lectures = lectures;
 	}
 
-	public double getPrice() {
+	public Double getPrice() {
 		return price;
 	}
 
-	public void setPrice(double price) {
+	public void setPrice(Double price) {
 		this.price = price;
 	}
 
@@ -135,12 +146,15 @@ public class Course {
 	public void setCategory(String category) {
 		this.category = category;
 	}
-	
-	
-	
-	
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
 
 }

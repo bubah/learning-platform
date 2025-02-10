@@ -1,5 +1,6 @@
 package com.learning_platform.controller;
 
+import com.learning_platform.dto.CourseDTO;
 import com.learning_platform.model.Course;
 import com.learning_platform.service.CourseService;
 import jakarta.validation.Valid;
@@ -24,8 +25,8 @@ public class CourseController {
 
 
     @GetMapping
-    public ResponseEntity<List<Course>> getAllCourses(){
-        List<Course> courses = courseService.getAllCourses();
+    public ResponseEntity<List<CourseDTO>> getAllCourses(){
+        List<CourseDTO> courses = courseService.getAllCourses();
         return ResponseEntity.ok(courses);
     }
 
@@ -37,8 +38,8 @@ public class CourseController {
     }
 
     @PostMapping
-    public ResponseEntity<Course> createCourse(@Valid @RequestBody Course course){
-        Course savedCourse = courseService.createCourse(course);
+    public ResponseEntity<CourseDTO> createCourse(@Valid @RequestBody CourseDTO courseDTO){
+        CourseDTO savedCourse = courseService.createCourse(courseDTO);
         return ResponseEntity.ok(savedCourse);
     }
 

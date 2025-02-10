@@ -1,8 +1,11 @@
 package com.learning_platform.model;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.learning_platform.dto.SectionDTO;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -20,31 +23,40 @@ import lombok.Data;
 public class Section {
 	
 	@Id
-	@GeneratedValue(generator = "uuid2")
 	@Column(name="section_id")
-	private UUID id;
+	private UUID id = UUID.randomUUID();
 	
 	@ManyToOne
 	@JoinColumn(name="lecture_id")
+//	@JsonBackReference
 	private Lecture lecture; 
-	
-	
+
 	@Column(nullable=false, unique =true, name="title")
-	private String title; 
+	private String title;
+
+	@Column(nullable=false, unique =true, name="content")
+	private String content;
+
+	@Column(nullable=false, unique =true, name="description")
+	private String description;
 	
-	private String content; 
-	
-	private String description; 
-	
-	
-	
-	@Column(name="created_at", nullable=false, updatable=false)
+	@Column(name="created_at",  nullable=false, updatable=false)
 	@CreationTimestamp
 	private LocalDateTime createdAt;
 	
 	@Column(name="updated_at", nullable=false)
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
+
+	public Section(){}
+
+	public Section(SectionDTO sectionDTO){
+		this.id = sectionDTO.getId();
+		this.title = sectionDTO.getTitle();
+		this.description = sectionDTO.getDescription();
+		this.content = sectionDTO.getContent();
+	}
+
 
 	public UUID getId() {
 		return id;
