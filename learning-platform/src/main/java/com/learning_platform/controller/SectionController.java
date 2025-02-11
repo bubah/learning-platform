@@ -1,5 +1,6 @@
 package com.learning_platform.controller;
 
+import com.learning_platform.dto.SectionDTO;
 import com.learning_platform.model.Section;
 import com.learning_platform.service.SectionService;
 import org.apache.coyote.Response;
@@ -23,20 +24,20 @@ public class SectionController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Section>> getAllSections(){
-        List<Section> sections = sectionService.getAllSections();
+    public ResponseEntity<List<SectionDTO>> getAllSections(){
+        List<SectionDTO> sections = sectionService.getAllSections();
         return ResponseEntity.ok(sections);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Section> getSection(@PathVariable UUID id){
-        Section section = sectionService.getSection(id);
+    public ResponseEntity<SectionDTO> getSection(@PathVariable UUID id){
+        SectionDTO section = sectionService.getSection(id);
         return ResponseEntity.ok(section);
     }
 
     @PostMapping
-    public ResponseEntity<Section> createSection(@RequestBody Section section){
-        Section createdSection  = sectionService.createSection(section);
+    public ResponseEntity<SectionDTO> createSection(@RequestBody SectionDTO section){
+        SectionDTO createdSection  = sectionService.createSection(section);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(createdSection.getId())
@@ -45,8 +46,8 @@ public class SectionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Section> updateSection(@PathVariable UUID id, @RequestBody Section section){
-        Section updatedSection = sectionService.updateSection(id, section);
+    public ResponseEntity<SectionDTO> updateSection(@PathVariable UUID id, @RequestBody SectionDTO section){
+        SectionDTO updatedSection = sectionService.updateSection(id, section);
         return ResponseEntity.ok(updatedSection);
     }
 
@@ -57,6 +58,4 @@ public class SectionController {
         response.put("message", "Section with ID " + id + " has been deleted successfully");
         return ResponseEntity.ok(response);
     }
-
-
 }

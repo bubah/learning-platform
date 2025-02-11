@@ -22,18 +22,17 @@ public class CourseService {
 
     public List<CourseDTO> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
-        List<CourseDTO> courseDTOs = new ArrayList<>();
 
-        courses.forEach(course -> {
+        return courses.stream().map(course -> {
             CourseDTO courseDTO = new CourseDTO(course);
-            courseDTOs.add(courseDTO);
-        });
-        return courseDTOs;
+            return courseDTO;
+        }).collect(java.util.stream.Collectors.toList());
     }
 
-    public Course getCourseById(UUID id) {
-        return courseRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
-
+    public CourseDTO getCourseById(UUID id) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
+        return new CourseDTO(course);
     }
 
     public CourseDTO createCourse(CourseDTO courseDTO) {
@@ -42,29 +41,37 @@ public class CourseService {
         return new CourseDTO(savedCourse);
     }
 
-    public Course updateCourse(UUID id, Course updatedCourse) {
-        Course existingCourse = getCourseById(id);
+    // Update All Fields for a Course
+    public CourseDTO updateCourse(UUID id, CourseDTO updatedCourse) {
+        Course existingCourse = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
 
-        if(updatedCourse.getTitle() !=null){
-            existingCourse.setTitle(updatedCourse.getTitle());
-        }
-        if(updatedCourse.getDescription() != null){
-            existingCourse.setDescription(updatedCourse.getDescription());
-        }
-        if (updatedCourse.getPrice() > 0) {  // Ensure price is valid
-            existingCourse.setPrice(updatedCourse.getPrice());
-        }
-        if (updatedCourse.getCategory() != null) {
-            existingCourse.setCategory(updatedCourse.getCategory());
-        }
-//        if (updatedCourse.getInstructor() != null) {
-//            existingCourse.setInstructor(updatedCourse.getInstructor());
-//        }
-        return courseRepository.save(existingCourse);
+        existingCourse.setTitle(updatedCourse.getTitle());
+        existingCourse.setDescription(updatedCourse.getDescription());
+        existingCourse.setPrice(updatedCourse.getPrice());
+        existingCourse.setCategory(updatedCourse.getCategory());
+        existingCourse.setInstructor(updatedCourse.getInstructor());
+        return new CourseDTO(courseRepository.save(existingCourse));
+    }
+
+    // Update Some Fields for a Course
+    public CourseDTO patchCourse(UUID id, CourseDTO updatedCourse) {
+        Course existingCourse = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
+
+        existingCourse.setTitle(updatedCourse.getTitle());
+        existingCourse.setDescription(updatedCourse.getDescription());
+        existingCourse.setPrice(updatedCourse.getPrice());
+        existingCourse.setCategory(updatedCourse.getCategory());
+        existingCourse.setInstructor(updatedCourse.getInstructor());
+        return new CourseDTO(courseRepository.save(existingCourse));
     }
 
     public void deleteCourse(UUID id){
-        Course course = getCourseById(id);
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
         courseRepository.delete(course);
     }
+
+
 }

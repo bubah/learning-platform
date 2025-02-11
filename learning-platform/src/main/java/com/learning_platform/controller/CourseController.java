@@ -31,8 +31,8 @@ public class CourseController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Course> getCourseById(@PathVariable UUID id){
-        Course course  = courseService.getCourseById(id);
+    public ResponseEntity<CourseDTO> getCourseById(@PathVariable UUID id){
+        CourseDTO course  = courseService.getCourseById(id);
 
         return ResponseEntity.ok(course);
     }
@@ -44,8 +44,13 @@ public class CourseController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Course> updateCourse(@PathVariable UUID id, @Valid @RequestBody Course updatedCourse){
+    public ResponseEntity<CourseDTO> updateCourse(@PathVariable UUID id, @Valid @RequestBody CourseDTO updatedCourse){
         return ResponseEntity.ok(courseService.updateCourse(id, updatedCourse));
+    }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<CourseDTO> patchCourse(@PathVariable UUID id, @RequestBody CourseDTO updates){
+        return ResponseEntity.ok(courseService.patchCourse(id, updates));
     }
 
     @DeleteMapping("/{id}")

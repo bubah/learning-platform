@@ -1,5 +1,6 @@
 package com.learning_platform.controller;
 
+import com.learning_platform.dto.LectureDTO;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.service.LectureService;
 import org.springframework.http.HttpStatus;
@@ -24,20 +25,20 @@ public class LectureController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Lecture>> getAllLectures(){
-        List<Lecture> lectures = lectureService.getAllLectures();
+    public ResponseEntity<List<LectureDTO>> getAllLectures(){
+        List<LectureDTO> lectures = lectureService.getAllLectures();
         return ResponseEntity.ok(lectures);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Lecture> getLecture(@PathVariable UUID id){
-        Lecture lecture = lectureService.getLecture(id);
+    public ResponseEntity<LectureDTO> getLecture(@PathVariable UUID id){
+        LectureDTO lecture = lectureService.getLecture(id);
         return ResponseEntity.ok(lecture);
     }
 
     @PostMapping
-    public ResponseEntity<Lecture> createLecture(@RequestBody Lecture lecture){
-        Lecture createdLecture = lectureService.createLecture(lecture);
+    public ResponseEntity<LectureDTO> createLecture(@RequestBody LectureDTO lecture){
+        LectureDTO createdLecture = lectureService.createLecture(lecture);
         URI location = ServletUriComponentsBuilder.fromCurrentRequest()
                 .path("/{id}")
                 .buildAndExpand(createdLecture.getId())
@@ -46,8 +47,8 @@ public class LectureController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Lecture> updateLecture(@PathVariable UUID id, @RequestBody Lecture lecture){
-        Lecture updatedLecture = lectureService.updateLecture(id, lecture);
+    public ResponseEntity<LectureDTO> updateLecture(@PathVariable UUID id, @RequestBody LectureDTO lecture){
+        LectureDTO updatedLecture = lectureService.updateLecture(id, lecture);
         return ResponseEntity.ok(updatedLecture);
     }
 

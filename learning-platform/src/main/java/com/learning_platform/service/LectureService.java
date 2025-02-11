@@ -1,5 +1,6 @@
 package com.learning_platform.service;
 
+import com.learning_platform.dto.LectureDTO;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.repository.LectureRepository;
@@ -17,37 +18,40 @@ public class LectureService {
         this.lectureRepository = lectureRepository;
     }
 
-    public List<Lecture> getAllLectures(){
-        return lectureRepository.findAll();
+    public List<LectureDTO> getAllLectures(){
+        List<Lecture> lectures = lectureRepository.findAll();
+        return lectures.stream().map(lecture -> {
+            LectureDTO lectureDTO = new LectureDTO(lecture);
+            return lectureDTO;
+        }).collect(java.util.stream.Collectors.toList());
     }
 
-    public Lecture getLecture(UUID id){
-        return lectureRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Lecture with id: " + id + " Not Found"));
+    public LectureDTO getLecture(UUID id){
+        Lecture lecture = fetchLecture(id);
+        return new LectureDTO(lecture);
     }
 
-    public Lecture createLecture(Lecture lecture){
-        return lectureRepository.save(lecture);
+    public LectureDTO createLecture(LectureDTO lectureDTO){
+        Lecture lecture = new Lecture(lectureDTO);
+        return new LectureDTO(lectureRepository.save(lecture));
     }
 
-    public Lecture updateLecture(UUID id, Lecture updatedLecture){
-        Lecture existingLecture = lectureRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Lecture "+ id + " Not Found"));
-            if(updatedLecture.getTitle() !=null){
-                existingLecture.setTitle(updatedLecture.getTitle());
-             }
-            if(updatedLecture.getDescription() !=null){
-                existingLecture.setDescription(updatedLecture.getDescription());
-            }
-            if(updatedLecture.getVideo_url() !=null){
-                existingLecture.setVideo_url(updatedLecture.getVideo_url());
-            }
+    public LectureDTO updateLecture(UUID id, LectureDTO updatedLecture){
+        Lecture existingLecture = fetchLecture(id);
+        existingLecture.setTitle(updatedLecture.getTitle());
+        existingLecture.setDescription(updatedLecture.getDescription());
+        existingLecture.setVideo_url(updatedLecture.getVideo_url());
 
-            return lectureRepository.save(existingLecture);
+        return new LectureDTO(lectureRepository.save(existingLecture));
     }
 
     public void deleteLecture(UUID id){
-      Lecture lecture = getLecture(id);
+      Lecture lecture = fetchLecture(id);
       lectureRepository.delete(lecture);
+    }
+
+    private Lecture fetchLecture(UUID id){
+        return lectureRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Lecture with id: " + id + " Not Found"));
     }
 }
