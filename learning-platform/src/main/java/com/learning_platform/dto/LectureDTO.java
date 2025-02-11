@@ -14,8 +14,7 @@ public class LectureDTO {
     private Optional<String> title = Optional.empty();
     private Optional<String> description = Optional.empty();;
     private Optional<List<SectionDTO>> sections= Optional.empty();;
-    private Optional<String> video_url = Optional.empty();;
-
+    private Optional<String> video_url = Optional.empty();
 
     public LectureDTO(){}
 
@@ -24,14 +23,12 @@ public class LectureDTO {
         this.title = Optional.of(lecture.getTitle());
         this.description = Optional.of(lecture.getDescription());
         this.video_url = Optional.of(lecture.getVideo_url());
-        List<SectionDTO> sections = new ArrayList<>();
-
-        lecture.getSections().forEach(section -> {
-            SectionDTO sectionDTO = new SectionDTO(section);
-            sections.add(sectionDTO);
-        });
-
-        this.sections = Optional.of(sections);
+        this.sections = Optional.of(
+                lecture.getSections()
+                        .stream()
+                        .map(SectionDTO::new)
+                        .collect(java.util.stream.Collectors.toList())
+        );
     }
 
     public LectureDTO(Builder builder){
@@ -104,13 +101,10 @@ public class LectureDTO {
             return this;
         }
 
-
         public Builder setSections(List<SectionDTO> sections) {
             this.sections = Optional.ofNullable(sections);
             return this;
         }
-
-
 
         public Builder setVideoURL(String videoURL) {
             this.video_url = Optional.ofNullable(videoURL);

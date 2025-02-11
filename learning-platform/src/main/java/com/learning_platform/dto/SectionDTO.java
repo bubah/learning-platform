@@ -102,13 +102,10 @@ public class SectionDTO {
             return this;
         }
 
-
         public Builder setLecture(LectureDTO lecture) {
             this.lecture = Optional.ofNullable(lecture);
             return this;
         }
-
-
 
         public Builder setContent(String content) {
             this.content = Optional.ofNullable(content);

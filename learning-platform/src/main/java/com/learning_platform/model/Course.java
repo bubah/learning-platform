@@ -146,15 +146,4 @@ public class Course {
 	public void setCategory(String category) {
 		this.category = category;
 	}
-
-
-
-
-
-
-
-
-
-
-
 }

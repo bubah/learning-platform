@@ -19,7 +19,6 @@ public class CourseDTO {
     private Optional<Double> price= Optional.empty();;
     private Optional<String> category= Optional.empty();;
 
-
     public CourseDTO(){};
 
     public CourseDTO(Course course){
@@ -27,14 +26,11 @@ public class CourseDTO {
     this.title = Optional.ofNullable(course.getTitle());
     this.description = Optional.ofNullable(course.getDescription());
     this.price = Optional.ofNullable(course.getPrice());
-    List<LectureDTO> lectureDTOS = new ArrayList<>();
-
-    course.getLectures().forEach(lecture -> {
-        LectureDTO lectureDTO = new LectureDTO(lecture);
-        lectureDTOS.add(lectureDTO);
-
-    });
-    this.lectures = Optional.of(lectureDTOS);
+    this.lectures = Optional.of(course.getLectures()
+            .stream()
+            .map(LectureDTO::new)
+            .collect(java.util.stream.Collectors.toList())
+    );
     this.category = Optional.ofNullable(course.getCategory());
 
     }
@@ -156,6 +152,4 @@ public class CourseDTO {
             return new CourseDTO(this);
         }
     }
-
-
 }
