@@ -31,13 +31,13 @@ public class Section {
 //	@JsonBackReference
 	private Lecture lecture; 
 
-	@Column(nullable=false, unique =true, name="title")
+	@Column(nullable=false, name="title")
 	private String title;
 
-	@Column(nullable=false, unique =true, name="content")
+	@Column(nullable=false, name="content")
 	private String content;
 
-	@Column(nullable=false, unique =true, name="description")
+	@Column(nullable=false, name="description")
 	private String description;
 	
 	@Column(name="created_at",  nullable=false, updatable=false)

@@ -31,7 +31,7 @@ import lombok.Data;
 		private Course course;
 		
 		
-		@Column(nullable=false, unique =true, name="title")
+		@Column(nullable=false, name="title")
 		@NotBlank(message="title must be provide")
 		private String title;
 
