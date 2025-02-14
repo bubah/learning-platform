@@ -1,11 +1,7 @@
 package com.learning_platform.dto;
 
 import com.learning_platform.model.Course;
-import com.learning_platform.model.Instructor;
-import com.learning_platform.model.Lecture;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;

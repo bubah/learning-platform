@@ -18,7 +18,6 @@ import lombok.Data;
 
 	@Entity
 	@Table(name = "Lectures")
-//	what is the inheritance strategy is here
 	public class Lecture {
 		
 		@Id
@@ -27,7 +26,6 @@ import lombok.Data;
 
 		@ManyToOne
 		@JoinColumn(name="course_id")
-//		@JsonBackReference  // Prevents infinite recursion
 		private Course course;
 		
 		
@@ -41,7 +39,6 @@ import lombok.Data;
 		private String description;
 
 		@OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
-//		@JsonManagedReference
 		private List<Section> sections;
 		
 		

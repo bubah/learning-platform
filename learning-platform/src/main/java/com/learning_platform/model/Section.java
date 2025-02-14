@@ -28,8 +28,7 @@ public class Section {
 	
 	@ManyToOne
 	@JoinColumn(name="lecture_id")
-//	@JsonBackReference
-	private Lecture lecture; 
+	private Lecture lecture;
 
 	@Column(nullable=false, name="title")
 	private String title;
@@ -56,7 +55,6 @@ public class Section {
 		this.description = sectionDTO.getDescription();
 		this.content = sectionDTO.getContent();
 	}
-
 
 	public UUID getId() {
 		return id;
@@ -97,5 +95,4 @@ public class Section {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
 }

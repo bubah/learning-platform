@@ -93,6 +93,21 @@
 					</excludes>
 				</configuration>
 			</plugin>
+			<plugin>
+				<groupId>org.flywaydb</groupId>
+				<artifactId>flyway-maven-plugin</artifactId>
+				<version>9.20.1</version> <!-- Make sure to use the latest version -->
+				<configuration>
+					<!-- Database connection settings -->
+					<url>jdbc:postgresql://localhost:5432/${env.LEARNING_PLATFORM_DEV_DB_NAME}</url>
+					<user>${LEARNING_PLATFORM_DEV_DB_USER}</user>
+					<password>${LEARNING_PLATFORM_DEV_DB_PASSWORD}</password>
+					<schemas>public</schemas>
+					<locations>
+						<location>classpath:db/migration</location> <!-- Folder for migration scripts -->
+					</locations>
+				</configuration>
+			</plugin>
 		</plugins>
 	</build>
 
