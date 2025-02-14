@@ -17,11 +17,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 import lombok.Data;
 
 	@Entity
-	@Table(name = "Lectures")
+	@Table(name = "Lectures", schema = "LEARNING_PLATFORM")
 	public class Lecture {
 		
 		@Id
-		@Column(name="lecture_id")
+		@Column(name="id")
 		private UUID id = UUID.randomUUID();
 
 		@ManyToOne

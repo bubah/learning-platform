@@ -102,10 +102,12 @@
 					<url>jdbc:postgresql://localhost:5432/${env.LEARNING_PLATFORM_DEV_DB_NAME}</url>
 					<user>${LEARNING_PLATFORM_DEV_DB_USER}</user>
 					<password>${LEARNING_PLATFORM_DEV_DB_PASSWORD}</password>
-					<schemas>public</schemas>
+					<schemas>learning_platform</schemas>
+					<!-- Migration locations -->
 					<locations>
-						<location>classpath:db/migration</location> <!-- Folder for migration scripts -->
+						<location>classpath:db/migration</location> <!-- forward migrations -->
 					</locations>
+					<validateMigrationNaming>true</validateMigrationNaming>
 				</configuration>
 			</plugin>
 		</plugins>

@@ -19,11 +19,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 import lombok.Data;
 
 @Entity
-@Table(name = "courses")
+@Table(name = "courses", schema = "LEARNING_PLATFORM")
 public class Course {
 
 	@Id
-	@Column(name="course_id")
+	@Column(name="id")
 	private UUID id = UUID.randomUUID();
 
 	@NotBlank(message = "Title is required")

@@ -20,11 +20,11 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "USERS")
+@Table(name = "USERS", schema = "LEARNING_PLATFORM")
 @Inheritance(strategy = InheritanceType.JOINED)
 public class User {
 	@Id
-	@Column(name="user_id")
+	@Column(name="id")
 	private UUID id = UUID.randomUUID();;
 	
 	@Column(nullable=false, unique =true, name="username")

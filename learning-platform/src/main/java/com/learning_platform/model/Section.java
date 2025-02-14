@@ -19,11 +19,11 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "Sections")
+@Table(name = "Sections", schema = "LEARNING_PLATFORM")
 public class Section {
 	
 	@Id
-	@Column(name="section_id")
+	@Column(name="id")
 	private UUID id = UUID.randomUUID();
 	
 	@ManyToOne
