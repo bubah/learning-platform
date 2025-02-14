@@ -71,6 +71,7 @@ public class Course {
 		this.description = courseDTO.getDescription();
 		this.price = courseDTO.getPrice();
 		this.category = courseDTO.getCategory();
+		this.user = courseDTO.getUser();
 		List<Lecture> lectures = new ArrayList<Lecture>();
 
 		courseDTO.getLectures().forEach(lectureDTO -> {
