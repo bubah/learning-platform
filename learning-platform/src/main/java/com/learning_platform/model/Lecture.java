@@ -17,21 +17,19 @@ import org.hibernate.annotations.UpdateTimestamp;
 import lombok.Data;
 
 	@Entity
-	@Table(name = "Lectures")
-//	what is the inheritance strategy is here
+	@Table(name = "Lectures", schema = "LEARNING_PLATFORM")
 	public class Lecture {
 		
 		@Id
-		@Column(name="lecture_id")
+		@Column(name="id")
 		private UUID id = UUID.randomUUID();
 
 		@ManyToOne
 		@JoinColumn(name="course_id")
-//		@JsonBackReference  // Prevents infinite recursion
 		private Course course;
 		
 		
-		@Column(nullable=false, unique =true, name="title")
+		@Column(nullable=false, name="title")
 		@NotBlank(message="title must be provide")
 		private String title;
 
@@ -41,7 +39,6 @@ import lombok.Data;
 		private String description;
 
 		@OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
-//		@JsonManagedReference
 		private List<Section> sections;
 		
 		

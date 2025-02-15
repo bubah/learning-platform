@@ -1,6 +1,7 @@
 package com.learning_platform.model;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -19,19 +20,15 @@ import lombok.Data;
 
 @Data
 @Entity
-@Table(name = "USERS")
+@Table(name = "USERS", schema = "LEARNING_PLATFORM")
 @Inheritance(strategy = InheritanceType.JOINED)
-public abstract class User {
+public class User {
 	@Id
-	@GeneratedValue(generator = "uuid2")
-	@Column(name="user_id")
-	private long id;
+	@Column(name="id")
+	private UUID id = UUID.randomUUID();;
 	
 	@Column(nullable=false, unique =true, name="username")
 	private String username;
-	
-	@Column(nullable=false, name = "password_hash")
-	private String password;
 	
 	@Column(nullable=false, unique = true, name="email")
 	private String email;
@@ -47,5 +44,12 @@ public abstract class User {
 	@Column(name="updated_at", nullable=false)
 	@UpdateTimestamp
 	private LocalDateTime updatedAt;
-	
+
+	public User() {}
+
+	public User(String username, String email, Role role) {
+		this.username = username;
+		this.email = email;
+		this.role = role;
+	}
 }

@@ -19,25 +19,24 @@ import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
-@Table(name = "Sections")
+@Table(name = "Sections", schema = "LEARNING_PLATFORM")
 public class Section {
 	
 	@Id
-	@Column(name="section_id")
+	@Column(name="id")
 	private UUID id = UUID.randomUUID();
 	
 	@ManyToOne
 	@JoinColumn(name="lecture_id")
-//	@JsonBackReference
-	private Lecture lecture; 
+	private Lecture lecture;
 
-	@Column(nullable=false, unique =true, name="title")
+	@Column(nullable=false, name="title")
 	private String title;
 
-	@Column(nullable=false, unique =true, name="content")
+	@Column(nullable=false, name="content")
 	private String content;
 
-	@Column(nullable=false, unique =true, name="description")
+	@Column(nullable=false, name="description")
 	private String description;
 	
 	@Column(name="created_at",  nullable=false, updatable=false)
@@ -56,7 +55,6 @@ public class Section {
 		this.description = sectionDTO.getDescription();
 		this.content = sectionDTO.getContent();
 	}
-
 
 	public UUID getId() {
 		return id;
@@ -97,5 +95,4 @@ public class Section {
 	public void setDescription(String description) {
 		this.description = description;
 	}
-
 }

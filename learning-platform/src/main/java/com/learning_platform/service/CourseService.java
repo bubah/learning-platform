@@ -6,7 +6,6 @@ import com.learning_platform.model.Course;
 import com.learning_platform.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -50,7 +49,7 @@ public class CourseService {
         existingCourse.setDescription(updatedCourse.getDescription());
         existingCourse.setPrice(updatedCourse.getPrice());
         existingCourse.setCategory(updatedCourse.getCategory());
-        existingCourse.setInstructor(updatedCourse.getInstructor());
+        existingCourse.setUser(updatedCourse.getUser());
         return new CourseDTO(courseRepository.save(existingCourse));
     }
 
@@ -63,7 +62,7 @@ public class CourseService {
         existingCourse.setDescription(updatedCourse.getDescription());
         existingCourse.setPrice(updatedCourse.getPrice());
         existingCourse.setCategory(updatedCourse.getCategory());
-        existingCourse.setInstructor(updatedCourse.getInstructor());
+        existingCourse.setUser(updatedCourse.getUser());
         return new CourseDTO(courseRepository.save(existingCourse));
     }
 

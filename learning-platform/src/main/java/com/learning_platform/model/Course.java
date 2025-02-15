@@ -19,14 +19,11 @@ import org.hibernate.annotations.UpdateTimestamp;
 import lombok.Data;
 
 @Entity
-@Table(name = "courses")
-//@Inheritance(strategy = InheritanceType.JOINED)
-//what is the inheritance strategy going to be for courses, lessons, sections.  
+@Table(name = "courses", schema = "LEARNING_PLATFORM")
 public class Course {
-	
-	
+
 	@Id
-	@Column(name="course_id")
+	@Column(name="id")
 	private UUID id = UUID.randomUUID();
 
 	@NotBlank(message = "Title is required")
@@ -42,9 +39,9 @@ public class Course {
 	
     // Many courses can belong to one instructor
     @ManyToOne
-    @JoinColumn(name = "instructor_id")
-//	@NotNull(message = "Instructor must be provided")// Foreign key column to Instructor table
-    private Instructor instructor;
+    @JoinColumn(name = "user_id")
+	@NotNull(message = "Instructor must be provided")// Foreign key column to Instructor table
+    private User user;
 
 	@OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
 //	@JsonManagedReference  // Prevents infinite recursion
@@ -74,6 +71,7 @@ public class Course {
 		this.description = courseDTO.getDescription();
 		this.price = courseDTO.getPrice();
 		this.category = courseDTO.getCategory();
+		this.user = courseDTO.getUser();
 		List<Lecture> lectures = new ArrayList<Lecture>();
 
 		courseDTO.getLectures().forEach(lectureDTO -> {
@@ -111,12 +109,12 @@ public class Course {
 		this.description = description;
 	}
 
-	public Instructor getInstructor() {
-		return instructor;
+	public User getInstructor() {
+		return user;
 	}
 
-	public void setInstructor(Instructor instructor) {
-		this.instructor = instructor;
+	public void setUser(User user) {
+		this.user = user;
 	}
 
 	public List<Lecture> getLectures() {

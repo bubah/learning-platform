@@ -1,11 +1,8 @@
 package com.learning_platform.dto;
 
 import com.learning_platform.model.Course;
-import com.learning_platform.model.Instructor;
-import com.learning_platform.model.Lecture;
+import com.learning_platform.model.User;
 
-import javax.swing.text.html.Option;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -14,7 +11,7 @@ public class CourseDTO {
     private Optional<UUID> id = Optional.empty() ;
     private Optional<String> title = Optional.empty();
     private Optional<String> description = Optional.empty();;
-    private Optional<Instructor> instructor= Optional.empty();;
+    private Optional<User> user = Optional.empty();;
     private Optional<List<LectureDTO>> lectures= Optional.empty();;
     private Optional<Double> price= Optional.empty();;
     private Optional<String> category= Optional.empty();;
@@ -41,7 +38,7 @@ public class CourseDTO {
         this.price = builder.price;
         this.category = builder.category;
         this.lectures = builder.lectures;
-        this.instructor = builder.instructor;
+        this.user = builder.user;
     }
 
     public UUID getId() {
@@ -53,8 +50,8 @@ public class CourseDTO {
         return description.orElse(null);
     }
 
-    public Instructor getInstructor() {
-        return instructor.orElse(null);
+    public User getUser() {
+        return user.orElse(null);
     }
 
     public List<LectureDTO> getLectures() {
@@ -95,8 +92,8 @@ public class CourseDTO {
         this.lectures = Optional.ofNullable(lectures);
     }
 
-    public void setInstructor(Instructor instructor) {
-        this.instructor = Optional.ofNullable(instructor);
+    public void setUser(User user) {
+        this.user = Optional.ofNullable(user);
     }
 
     public void setDescription(String description) {
@@ -108,7 +105,7 @@ public class CourseDTO {
         private Optional<UUID> id = Optional.empty() ;
         private Optional<String> title = Optional.empty();
         private Optional<String> description = Optional.empty();;
-        private Optional<Instructor> instructor= Optional.empty();;
+        private Optional<User> user = Optional.empty();;
         private Optional<List<LectureDTO>> lectures= Optional.empty();;
         private Optional<Double> price= Optional.empty();;
         private Optional<String> category= Optional.empty();;
@@ -128,8 +125,8 @@ public class CourseDTO {
             return this;
         }
 
-        public Builder setInstructor(Instructor instructor) {
-            this.instructor = Optional.ofNullable(instructor);
+        public Builder setUser(User user) {
+            this.user = Optional.ofNullable(user);
             return  this;
         }
 
