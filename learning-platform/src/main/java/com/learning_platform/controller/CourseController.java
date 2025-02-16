@@ -33,7 +33,6 @@ public class CourseController {
     @GetMapping("/{id}")
     public ResponseEntity<CourseDTO> getCourseById(@PathVariable UUID id){
         CourseDTO course  = courseService.getCourseById(id);
-
         return ResponseEntity.ok(course);
     }
 

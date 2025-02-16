@@ -30,12 +30,9 @@ import lombok.Data;
 		
 		
 		@Column(nullable=false, name="title")
-		@NotBlank(message="title must be provide")
 		private String title;
 
 		private String video_url;
-
-		@NotBlank(message="description must be provide")
 		private String description;
 
 		@OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)

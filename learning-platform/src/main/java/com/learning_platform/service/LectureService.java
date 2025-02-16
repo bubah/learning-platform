@@ -7,6 +7,7 @@ import com.learning_platform.repository.LectureRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -38,10 +39,9 @@ public class LectureService {
 
     public LectureDTO updateLecture(UUID id, LectureDTO updatedLecture){
         Lecture existingLecture = fetchLecture(id);
-        existingLecture.setTitle(updatedLecture.getTitle());
-        existingLecture.setDescription(updatedLecture.getDescription());
-        existingLecture.setVideo_url(updatedLecture.getVideo_url());
-
+        Optional.ofNullable(updatedLecture.getTitle()).ifPresent(existingLecture::setTitle);
+        Optional.ofNullable(updatedLecture.getDescription()).ifPresent(existingLecture::setDescription);
+        Optional.ofNullable(updatedLecture.getVideo_url()).ifPresent(existingLecture::setVideo_url);
         return new LectureDTO(lectureRepository.save(existingLecture));
     }
 
