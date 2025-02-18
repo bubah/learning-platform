@@ -46,6 +46,7 @@ public class SectionService {
         Optional.ofNullable(updatedSection.getTitle()).ifPresent(existingSection::setTitle);
         Optional.ofNullable(updatedSection.getDescription()).ifPresent(existingSection::setDescription);
         Optional.ofNullable(updatedSection.getContent()).ifPresent(existingSection::setContent);
+        Optional.ofNullable(updatedSection.getOrder()).ifPresent(existingSection::setOrder);
 
         return new SectionDTO(sectionRepository.save(existingSection));
     }

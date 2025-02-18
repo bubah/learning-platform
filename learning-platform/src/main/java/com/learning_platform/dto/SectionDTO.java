@@ -18,16 +18,16 @@ public class SectionDTO {
     private Optional<String> title = Optional.empty();
     private Optional<String> content = Optional.empty();
     private Optional<String> description = Optional.empty();
+    private Optional<Integer> order = Optional.empty();
 
     public Integer getOrder() {
         return order.orElse(null);
     }
 
-    public void setOrder(Optional<Integer> order) {
-        this.order = order;
+    public void setOrder(Integer order) {
+        this.order = Optional.ofNullable(order);
     }
 
-    private Optional<Integer> order = Optional.empty();
 
 
     public SectionDTO(){}

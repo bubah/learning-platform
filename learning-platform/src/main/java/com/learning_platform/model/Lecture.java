@@ -72,17 +72,6 @@ import lombok.Data;
 		}
 
 
-		public Lecture(String title, String video_url, String description, List<Section> sections) {
-			this.title = title;
-			this.video_url = video_url;
-			this.description = description;
-			this.sections = sections;
-
-			for(Section s: sections){
-				s.setLecture(this);
-			}
-		}
-
 		public UUID getId() {
 			return id;
 		}
