@@ -3,9 +3,11 @@ package com.learning_platform.service;
 import com.learning_platform.dto.CourseDTO;
 import com.learning_platform.dto.LectureDTO;
 import com.learning_platform.dto.ReorderResourceDTO;
+import com.learning_platform.dto.SectionDTO;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Course;
 import com.learning_platform.model.Lecture;
+import com.learning_platform.model.Section;
 import com.learning_platform.repository.CourseRepository;
 import com.learning_platform.repository.LectureRepository;
 import org.springframework.stereotype.Service;
@@ -26,7 +28,6 @@ public class ReorderResourceService {
     }
 
     public CourseDTO orderLectures(UUID course_id, ReorderResourceDTO reorderResourceDTO){
-        ReorderResourceDTO reorderResourceDTO1 = new ReorderResourceDTO();
         List<LectureDTO> updatedLectures = reorderResourceDTO.getLectures();
         Course existingCourse = fetchCourse(course_id);
         List<Lecture> lectures = existingCourse.getLectures();
@@ -45,8 +46,30 @@ public class ReorderResourceService {
 
     }
 
+    public LectureDTO orderSections(UUID lecture_Id, ReorderResourceDTO reorderResourceDTO) {
+        List<SectionDTO> updatedSections = reorderResourceDTO.getSections();
+                Lecture existingLecture = fetchLecture(lecture_Id);
+        List<Section> existingSections = existingLecture.getSections();
+
+        existingSections.forEach(es -> {
+            updatedSections.forEach(up -> {
+                if(up.getId().equals(es.getId())){
+                    Optional.of(up.getOrder()).ifPresent(es::setOrder);
+                }
+            });
+        });
+
+        lectureRepository.save(existingLecture);
+        return new LectureDTO(existingLecture);
+
+    }
+
     private Course fetchCourse(UUID id){
         return courseRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Course with id: " + id + " Not Found"));
+    }
+    private Lecture fetchLecture(UUID id){
+        return lectureRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Course with id: " + id + " Not Found"));
     }
 

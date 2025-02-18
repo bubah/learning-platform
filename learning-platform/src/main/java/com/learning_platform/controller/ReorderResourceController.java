@@ -1,6 +1,7 @@
 package com.learning_platform.controller;
 
 import com.learning_platform.dto.CourseDTO;
+import com.learning_platform.dto.LectureDTO;
 import com.learning_platform.dto.ReorderResourceDTO;
 import com.learning_platform.repository.CourseRepository;
 import com.learning_platform.repository.LectureRepository;
@@ -27,6 +28,13 @@ public class ReorderResourceController {
               CourseDTO updatedCourse = reorderResourceService.orderLectures(course_id,reorderResourceDTO);
         return ResponseEntity.ok(updatedCourse);
     }
+
+    @PostMapping("/section-reorder/{lecture_id}")
+    public ResponseEntity<LectureDTO> reorderSections(@PathVariable UUID lecture_id, @RequestBody ReorderResourceDTO reorderResourceDTO){
+        LectureDTO updatedLecture = reorderResourceService.orderSections(lecture_id,reorderResourceDTO);
+        return ResponseEntity.ok(updatedLecture);
+    }
+
 
 
 }
