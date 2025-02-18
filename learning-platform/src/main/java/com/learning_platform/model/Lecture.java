@@ -34,6 +34,8 @@ import lombok.Data;
 
 		private String video_url;
 		private String description;
+		@Column(name = "lecture_order")
+		private Integer order;
 
 		@OneToMany(mappedBy = "lecture", cascade = CascadeType.ALL, orphanRemoval = true)
 		private List<Section> sections;
@@ -65,7 +67,10 @@ import lombok.Data;
 
 			this.sections = sections;
 
+			this.order = lectureDTO.getOrder();
+
 		}
+
 
 		public Lecture(String title, String video_url, String description, List<Section> sections) {
 			this.title = title;
@@ -129,6 +134,14 @@ import lombok.Data;
 
 		public void setDescription(String description) {
 			this.description = description;
+		}
+
+		public Integer getOrder() {
+			return order;
+		}
+
+		public void setOrder(Integer order) {
+			this.order = order;
 		}
 		
 
