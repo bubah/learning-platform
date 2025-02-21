@@ -59,4 +59,6 @@ public class LectureController {
         response.put("message", "Lecture with ID " + id + " has been deleted successfully");
         return ResponseEntity.ok(response);
     }
+
+
 }

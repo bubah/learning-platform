@@ -38,7 +38,11 @@ public class Section {
 
 	@Column(nullable=false, name="description")
 	private String description;
-	
+
+	@Column(name = "section_order")
+	private Integer order;
+
+
 	@Column(name="created_at",  nullable=false, updatable=false)
 	@CreationTimestamp
 	private LocalDateTime createdAt;
@@ -54,6 +58,7 @@ public class Section {
 		this.title = sectionDTO.getTitle();
 		this.description = sectionDTO.getDescription();
 		this.content = sectionDTO.getContent();
+		this.order = sectionDTO.getOrder();
 	}
 
 	public UUID getId() {
@@ -94,5 +99,13 @@ public class Section {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+
+	public Integer getOrder() {
+		return order;
+	}
+
+	public void setOrder(Integer order) {
+		this.order = order;
 	}
 }

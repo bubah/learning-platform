@@ -18,6 +18,16 @@ public class SectionDTO {
     private Optional<String> title = Optional.empty();
     private Optional<String> content = Optional.empty();
     private Optional<String> description = Optional.empty();
+    private Optional<Integer> order = Optional.empty();
+
+    public Integer getOrder() {
+        return order.orElse(null);
+    }
+
+    public void setOrder(Integer order) {
+        this.order = Optional.ofNullable(order);
+    }
+
 
 
     public SectionDTO(){}
@@ -27,6 +37,7 @@ public class SectionDTO {
         this.title = Optional.of(section.getTitle());
         this.description = Optional.of(section.getDescription());
         this.content = Optional.of(section.getContent());
+        this.order = Optional.of(section.getOrder());
     }
 
     public SectionDTO(Builder builder){
@@ -35,6 +46,7 @@ public class SectionDTO {
         this.description = builder.description;
         this.content = builder.content;
         this.lecture = builder.lecture;
+        this.order = builder.order;
     }
 
 
@@ -86,6 +98,13 @@ public class SectionDTO {
         private Optional<String> title = Optional.empty();
         private Optional<String> content = Optional.empty();
         private Optional<String> description = Optional.empty();
+        private Optional<Integer> order = Optional.empty();
+
+
+        public Builder setOrder(Integer order) {
+            this.order = Optional.ofNullable(order);
+            return this;
+        }
 
         public Builder setId(UUID id) {
             this.id = Optional.ofNullable(id);

@@ -7,6 +7,7 @@ import com.learning_platform.repository.SectionRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -42,9 +43,10 @@ public class SectionService {
 
     public SectionDTO updateSection(UUID id, SectionDTO updatedSection){
         Section existingSection = fetchSection(id);
-        existingSection.setTitle(updatedSection.getTitle());
-        existingSection.setDescription(updatedSection.getDescription());
-        existingSection.setContent(updatedSection.getContent());
+        Optional.ofNullable(updatedSection.getTitle()).ifPresent(existingSection::setTitle);
+        Optional.ofNullable(updatedSection.getDescription()).ifPresent(existingSection::setDescription);
+        Optional.ofNullable(updatedSection.getContent()).ifPresent(existingSection::setContent);
+        Optional.ofNullable(updatedSection.getOrder()).ifPresent(existingSection::setOrder);
 
         return new SectionDTO(sectionRepository.save(existingSection));
     }

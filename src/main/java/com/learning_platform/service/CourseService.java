@@ -1,12 +1,17 @@
 package com.learning_platform.service;
 
 import com.learning_platform.dto.CourseDTO;
+import com.learning_platform.dto.LectureDTO;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Course;
+import com.learning_platform.model.Lecture;
+import com.learning_platform.model.Section;
 import com.learning_platform.repository.CourseRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -31,6 +36,8 @@ public class CourseService {
     public CourseDTO getCourseById(UUID id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
+        List<Lecture> sortedLectures = course.getLectures();
+        sortedLectures.sort(Comparator.comparingInt(Lecture::getOrder));
         return new CourseDTO(course);
     }
 
@@ -50,6 +57,27 @@ public class CourseService {
         existingCourse.setPrice(updatedCourse.getPrice());
         existingCourse.setCategory(updatedCourse.getCategory());
         existingCourse.setUser(updatedCourse.getUser());
+
+        List<Lecture> lectures = existingCourse.getLectures();
+        List<LectureDTO> updatedLectures = updatedCourse.getLectures();
+
+//      lectures.forEach(el -> {
+//          List<Section> existingSections = el.getSections();
+//          updatedLectures.forEach(ul ->{
+//              if(el.getId() == ul.getId()){
+//                  Optional.of(ul.getOrder()).ifPresent(el::setOrder);
+//                  Optional.of(ul.getTitle()).ifPresent(el::setTitle);
+//                  Optional.of(ul.getDescription()).ifPresent(el::setDescription);
+//                  Optional.of(ul.getSections()).ifPresent( (updatedSections) -> {
+//                      updatedSections.forEach((us) -> {
+//                        Optional.of(us.getOrder()).ifPresent();
+//                      });
+//                  } );
+//
+//              }
+//          });
+//      });
+
         return new CourseDTO(courseRepository.save(existingCourse));
     }
 
