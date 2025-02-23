@@ -100,5 +100,10 @@ public class CourseService {
         courseRepository.delete(course);
     }
 
+    public Course fetchCourse(UUID id){
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("course not found"));
+    }
+
 
 }

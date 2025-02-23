@@ -52,7 +52,7 @@ import lombok.Data;
 
 		public Lecture(){}
 
-		public Lecture(LectureDTO lectureDTO){
+		public Lecture(LectureDTO lectureDTO, Course course){
 			this.title = lectureDTO.getTitle();
 			this.description = lectureDTO.getDescription();
 			this.video_url = lectureDTO.getVideo_url();
@@ -68,6 +68,7 @@ import lombok.Data;
 			this.sections = sections;
 
 			this.order = lectureDTO.getOrder();
+			this.course = course;
 
 		}
 

@@ -75,8 +75,7 @@ public class Course {
 		List<Lecture> lectures = new ArrayList<Lecture>();
 
 		courseDTO.getLectures().forEach(lectureDTO -> {
-			Lecture lecture = new Lecture(lectureDTO);
-			lecture.setCourse(this);
+			Lecture lecture = new Lecture(lectureDTO,this);
 			lectures.add(lecture);
 
 		});
