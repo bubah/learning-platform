@@ -12,15 +12,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import static java.util.Collections.sort;
+
 @Service
 public class LectureService {
 
     private final LectureRepository lectureRepository;
     public final CourseService courseService;
+    public final CourseRepository courseRepository;
 
-    public LectureService(LectureRepository lectureRepository,CourseService courseService){
+    public LectureService(LectureRepository lectureRepository, CourseService courseService, CourseRepository courseRepository) {
         this.lectureRepository = lectureRepository;
         this.courseService = courseService;
+        this.courseRepository = courseRepository;
     }
 
     public List<LectureDTO> getAllLectures(){
@@ -53,7 +57,19 @@ public class LectureService {
 
     public void deleteLecture(UUID id){
       Lecture lecture = fetchLecture(id);
+      Course course = courseService.fetchCourse(lecture.getCourse().getId());
       lectureRepository.delete(lecture);
+      List<Lecture> lectures = course.getLectures();
+      lectures.sort((a,b) -> a.getOrder() - b.getOrder());
+
+      int count=0;
+      for(Lecture l : lectures){
+          l.setOrder(count);
+          count++;
+      }
+      course.setLectures(lectures);
+      courseRepository.save(course);
+
     }
 
     private Lecture fetchLecture(UUID id){
