@@ -29,6 +29,7 @@ public class LectureService {
 
     public List<LectureDTO> getAllLectures(){
         List<Lecture> lectures = lectureRepository.findAll();
+
         return lectures.stream().map(lecture -> {
             LectureDTO lectureDTO = new LectureDTO(lecture);
             return lectureDTO;
@@ -69,7 +70,6 @@ public class LectureService {
       }
       course.setLectures(lectures);
       courseRepository.save(course);
-
     }
 
     private Lecture fetchLecture(UUID id){

@@ -36,8 +36,6 @@ public class CourseService {
     public CourseDTO getCourseById(UUID id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
-        List<Lecture> sortedLectures = course.getLectures();
-        sortedLectures.sort(Comparator.comparingInt(Lecture::getOrder));
         return new CourseDTO(course);
     }
 

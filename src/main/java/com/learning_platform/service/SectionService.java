@@ -18,7 +18,6 @@ public class SectionService {
         this.sectionRepository = sectionRepository;
     }
 
-
     public List<SectionDTO> getAllSections(){
         List<Section> sections = sectionRepository.findAll();
 
