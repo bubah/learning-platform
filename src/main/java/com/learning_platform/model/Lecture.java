@@ -58,12 +58,12 @@ import lombok.Data;
 			this.video_url = lectureDTO.getVideo_url();
 			List<Section> sections = new ArrayList<>();
 
-			lectureDTO.getSections().forEach(sectionDTO -> {
+			Optional.ofNullable(lectureDTO.getSections()).ifPresent((sectionsDTO) -> sectionsDTO.forEach(sectionDTO -> {
 				Section section = new Section(sectionDTO);
 				section.setLecture(this);
 				sections.add(section);
 
-			});
+			}));
 
 			this.sections = sections;
 
