@@ -3,6 +3,7 @@ package com.learning_platform.service;
 import com.learning_platform.dto.SectionDTO;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Section;
+import com.learning_platform.model.Lecture;
 import com.learning_platform.repository.SectionRepository;
 import org.springframework.stereotype.Service;
 
@@ -13,9 +14,11 @@ import java.util.UUID;
 @Service
 public class SectionService {
     private final SectionRepository sectionRepository;
+    private final LectureService lectureService;
 
-    public SectionService(SectionRepository sectionRepository){
+    public SectionService(SectionRepository sectionRepository, LectureService lectureService){
         this.sectionRepository = sectionRepository;
+        this.lectureService = lectureService;
     }
 
     public List<SectionDTO> getAllSections(){
@@ -36,7 +39,9 @@ public class SectionService {
     }
 
     public SectionDTO createSection(SectionDTO sectionDTO){
-        Section section = new Section(sectionDTO);
+        UUID lectureId = sectionDTO.getLectureId();
+        Lecture lecture = lectureService.fetchLecture(lectureId);
+        Section section = new Section(sectionDTO, lecture);
         return new SectionDTO(sectionRepository.save(section));
     }
 

@@ -72,7 +72,7 @@ public class LectureService {
       courseRepository.save(course);
     }
 
-    private Lecture fetchLecture(UUID id){
+    public Lecture fetchLecture(UUID id){
         return lectureRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Lecture with id: " + id + " Not Found"));
     }

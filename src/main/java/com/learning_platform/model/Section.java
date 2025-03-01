@@ -53,12 +53,12 @@ public class Section {
 
 	public Section(){}
 
-	public Section(SectionDTO sectionDTO){
-		this.id = sectionDTO.getId();
+	public Section(SectionDTO sectionDTO, Lecture lecture){
 		this.title = sectionDTO.getTitle();
 		this.description = sectionDTO.getDescription();
 		this.content = sectionDTO.getContent();
 		this.order = sectionDTO.getOrder();
+		this.lecture = lecture;
 	}
 
 	public UUID getId() {
