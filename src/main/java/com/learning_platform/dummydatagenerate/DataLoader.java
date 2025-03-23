@@ -3,6 +3,7 @@ package com.learning_platform.dummydatagenerate;
 import com.learning_platform.dto.CourseDTO;
 import com.learning_platform.dto.LectureDTO;
 import com.learning_platform.dto.SectionDTO;
+import com.learning_platform.dto.UserDTO;
 import com.learning_platform.model.*;
 import com.learning_platform.repository.CourseRepository;
 import com.learning_platform.repository.LectureRepository;
@@ -11,6 +12,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import java.util.UUID;
 
 @Component
 public class DataLoader  implements CommandLineRunner {
@@ -28,7 +30,9 @@ public class DataLoader  implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 //         Create a User with the role of INSTRUCTOR
-//        User instructor = new User("testuser", "testuser@example.com", Role.INSTRUCTOR);
+//        UserDTO instructorDto = new UserDTO.Builder().setUsername("testuser").setEmail("testuser@example.com").setRole(Role.INSTRUCTOR).build();
+
+//        User instructor = new User(instructorDto);
 //        userRepository.save(instructor);
 ////
 //        // Create Dummy Sections

@@ -9,4 +9,4 @@ App is using Java 17
 `mvn flyway:migrate flyway:info`
 
 ## Run Application
- `./mvnw springboot:run`
+ `./mvnw spring-boot:run`
