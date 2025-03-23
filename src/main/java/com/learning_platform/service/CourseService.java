@@ -6,7 +6,9 @@ import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Course;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.model.Section;
+import com.learning_platform.model.User;
 import com.learning_platform.repository.CourseRepository;
+import com.learning_platform.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.Comparator;
@@ -18,9 +20,11 @@ import java.util.UUID;
 public class CourseService {
 
     private final CourseRepository courseRepository;
+    private final UserRepository userRepository;
 
-    public CourseService(CourseRepository courseRepository){
+    public CourseService(CourseRepository courseRepository, UserRepository userRepository){
         this.courseRepository = courseRepository;
+        this.userRepository = userRepository;
     }
 
 
@@ -36,13 +40,13 @@ public class CourseService {
     public CourseDTO getCourseById(UUID id) {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
-        List<Lecture> sortedLectures = course.getLectures();
-        sortedLectures.sort(Comparator.comparingInt(Lecture::getOrder));
         return new CourseDTO(course);
     }
 
     public CourseDTO createCourse(CourseDTO courseDTO) {
-        Course course = new Course(courseDTO);
+        String email = "testuser@example.com";
+        User user = userRepository.findByEmail(email).get();
+        Course course = new Course(courseDTO, user);
         Course savedCourse = courseRepository.save(course);
         return new CourseDTO(savedCourse);
     }
@@ -56,7 +60,7 @@ public class CourseService {
         existingCourse.setDescription(updatedCourse.getDescription());
         existingCourse.setPrice(updatedCourse.getPrice());
         existingCourse.setCategory(updatedCourse.getCategory());
-        existingCourse.setUser(updatedCourse.getUser());
+//        existingCourse.setUser(updatedCourse.getUser());
 
         List<Lecture> lectures = existingCourse.getLectures();
         List<LectureDTO> updatedLectures = updatedCourse.getLectures();
@@ -90,7 +94,7 @@ public class CourseService {
         existingCourse.setDescription(updatedCourse.getDescription());
         existingCourse.setPrice(updatedCourse.getPrice());
         existingCourse.setCategory(updatedCourse.getCategory());
-        existingCourse.setUser(updatedCourse.getUser());
+//        existingCourse.setUser(updatedCourse.getUser());
         return new CourseDTO(courseRepository.save(existingCourse));
     }
 
@@ -98,6 +102,11 @@ public class CourseService {
         Course course = courseRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
         courseRepository.delete(course);
+    }
+
+    public Course fetchCourse(UUID id){
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("course not found"));
     }
 
 

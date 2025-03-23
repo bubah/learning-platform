@@ -13,22 +13,24 @@ public class LectureDTO {
     private Optional<List<SectionDTO>> sections= Optional.empty();;
     private Optional<String> video_url = Optional.empty();
     private Optional<Integer> order = Optional.empty();
+    private Optional<UUID> courseId = Optional.empty();
 
 
     public LectureDTO(){}
 
     public LectureDTO(Lecture lecture){
-        this.id = Optional.of(lecture.getId());
-        this.title = Optional.of(lecture.getTitle());
-        this.description = Optional.of(lecture.getDescription());
-        this.video_url = Optional.of(lecture.getVideo_url());
+        this.id = Optional.ofNullable(lecture.getId());
+        this.title = Optional.ofNullable(lecture.getTitle());
+        this.description = Optional.ofNullable(lecture.getDescription());
+        this.video_url = Optional.ofNullable(lecture.getVideo_url());
         this.sections = Optional.of(
                 lecture.getSections()
                         .stream()
                         .map(SectionDTO::new)
                         .collect(java.util.stream.Collectors.toList())
         );
-        this.order = Optional.of(lecture.getOrder());
+        this.order = Optional.ofNullable(lecture.getOrder());
+        this.courseId = Optional.of(lecture.getCourse().getId());
     }
 
     public LectureDTO(Builder builder){
@@ -37,6 +39,7 @@ public class LectureDTO {
         this.sections = builder.sections;
         this.video_url = builder.video_url;
         this.order = builder.order;
+        this.courseId = builder.courseId;
     }
 
     public UUID getId() {
@@ -87,6 +90,14 @@ public class LectureDTO {
         this.order = Optional.ofNullable(order);
     }
 
+    public UUID getCourseId() {
+        return courseId.orElse(null);
+    }
+
+    public void setCourseId(UUID courseId) {
+        this.courseId = Optional.ofNullable(courseId);
+    }
+
     // Static inner Builder class
     public static class Builder {
         private Optional<UUID> id = Optional.empty() ;
@@ -95,7 +106,13 @@ public class LectureDTO {
         private Optional<List<SectionDTO>> sections= Optional.empty();;
         private Optional<String> video_url= Optional.empty();;
         private Optional<Integer> order = Optional.empty();
+        private Optional<UUID> courseId = Optional.empty();
 
+
+        public Builder setCourseId(UUID courseId){
+            this.courseId = Optional.ofNullable(courseId);
+            return this;
+        }
 
         public Builder setOrder(Integer order){
             this.order = Optional.ofNullable(order);

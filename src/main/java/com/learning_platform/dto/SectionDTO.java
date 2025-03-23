@@ -14,21 +14,11 @@ import java.util.UUID;
 
 public class SectionDTO {
     private Optional<UUID> id = Optional.empty();
-    private Optional<LectureDTO> lecture = Optional.empty();
     private Optional<String> title = Optional.empty();
     private Optional<String> content = Optional.empty();
     private Optional<String> description = Optional.empty();
     private Optional<Integer> order = Optional.empty();
-
-    public Integer getOrder() {
-        return order.orElse(null);
-    }
-
-    public void setOrder(Integer order) {
-        this.order = Optional.ofNullable(order);
-    }
-
-
+    private Optional<UUID> lectureId = Optional.empty();
 
     public SectionDTO(){}
 
@@ -38,6 +28,7 @@ public class SectionDTO {
         this.description = Optional.of(section.getDescription());
         this.content = Optional.of(section.getContent());
         this.order = Optional.of(section.getOrder());
+        this.lectureId = Optional.of(section.getLecture().getId());
     }
 
     public SectionDTO(Builder builder){
@@ -45,11 +36,9 @@ public class SectionDTO {
         this.title = builder.title;
         this.description = builder.description;
         this.content = builder.content;
-        this.lecture = builder.lecture;
         this.order = builder.order;
+        this.lectureId = builder.lectureId;
     }
-
-
 
     public UUID getId() {
         return id.orElse(null);
@@ -57,14 +46,6 @@ public class SectionDTO {
 
     public void setId(UUID id) {
         this.id = Optional.ofNullable(id);
-    }
-
-    public LectureDTO getLecture() {
-        return lecture.orElse(null);
-    }
-
-    public void setLecture(LectureDTO lecture) {
-        this.lecture = Optional.ofNullable(lecture);
     }
 
     public String getTitle() {
@@ -91,20 +72,30 @@ public class SectionDTO {
         this.description = Optional.ofNullable(description);
     }
 
+    public Integer getOrder() {
+        return order.orElse(null);
+    }
+
+    public void setOrder(Integer order) {
+        this.order = Optional.ofNullable(order);
+    }
+
+    public UUID getLectureId() {
+        return lectureId.orElse(null);
+    }
+
+    public void setLectureId(UUID lectureId) {
+        this.lectureId = Optional.ofNullable(lectureId);
+    }
+
     // Static inner Builder class
     public static class Builder {
         private Optional<UUID> id = Optional.empty();
-        private Optional<LectureDTO> lecture = Optional.empty();
         private Optional<String> title = Optional.empty();
         private Optional<String> content = Optional.empty();
         private Optional<String> description = Optional.empty();
         private Optional<Integer> order = Optional.empty();
-
-
-        public Builder setOrder(Integer order) {
-            this.order = Optional.ofNullable(order);
-            return this;
-        }
+        private Optional<UUID> lectureId = Optional.empty();
 
         public Builder setId(UUID id) {
             this.id = Optional.ofNullable(id);
@@ -121,13 +112,18 @@ public class SectionDTO {
             return this;
         }
 
-        public Builder setLecture(LectureDTO lecture) {
-            this.lecture = Optional.ofNullable(lecture);
+        public Builder setContent(String content) {
+            this.content = Optional.ofNullable(content);
             return this;
         }
 
-        public Builder setContent(String content) {
-            this.content = Optional.ofNullable(content);
+        public Builder setOrder(Integer order) {
+            this.order = Optional.ofNullable(order);
+            return this;
+        }
+
+        public Builder setLectureId(UUID lectureId) {
+            this.lectureId = Optional.ofNullable(lectureId);
             return this;
         }
 

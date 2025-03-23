@@ -3,6 +3,7 @@ package com.learning_platform.controller;
 import com.learning_platform.dto.CourseDTO;
 import com.learning_platform.model.Course;
 import com.learning_platform.service.CourseService;
+import com.learning_platform.validations.CourseControllerValidation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -38,6 +39,7 @@ public class CourseController {
 
     @PostMapping
     public ResponseEntity<CourseDTO> createCourse(@Valid @RequestBody CourseDTO courseDTO){
+        String errorMessage = CourseControllerValidation.validateCreate(courseDTO);
         CourseDTO savedCourse = courseService.createCourse(courseDTO);
         return ResponseEntity.ok(savedCourse);
     }

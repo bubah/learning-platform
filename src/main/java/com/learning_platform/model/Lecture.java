@@ -49,26 +49,26 @@ import lombok.Data;
 		@UpdateTimestamp
 		private LocalDateTime updatedAt;
 
-
 		public Lecture(){}
 
-		public Lecture(LectureDTO lectureDTO){
+		public Lecture(LectureDTO lectureDTO, Course course){
 			this.title = lectureDTO.getTitle();
 			this.description = lectureDTO.getDescription();
 			this.video_url = lectureDTO.getVideo_url();
 			List<Section> sections = new ArrayList<>();
 
-			lectureDTO.getSections().forEach(sectionDTO -> {
-				Section section = new Section(sectionDTO);
-				section.setLecture(this);
-				sections.add(section);
+			Optional.ofNullable(lectureDTO.getSections()).ifPresent(s -> {
+				s.forEach(sectionDTO -> {
+					Section section = new Section(sectionDTO, this);
+					sections.add(section);
 
+				});
 			});
 
 			this.sections = sections;
 
 			this.order = lectureDTO.getOrder();
-
+			this.course = course;
 		}
 
 
