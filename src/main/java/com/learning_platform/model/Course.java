@@ -3,6 +3,7 @@ package com.learning_platform.model;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
@@ -31,8 +32,8 @@ public class Course {
 	@Column(name="title", nullable=false)
 	private String title;
 
-	@NotBlank(message = "Description is required")
-	@Size(max = 500, message = "Description cannot exceed 500 characters")
+//	@NotBlank(message = "Description is required")
+//	@Size(max = 500, message = "Description cannot exceed 500 characters")
 	@Column(name="description", nullable=false)
 	private String description;
 	
@@ -40,7 +41,7 @@ public class Course {
     // Many courses can belong to one instructor
     @ManyToOne
     @JoinColumn(name = "user_id")
-	@NotNull(message = "Instructor must be provided")// Foreign key column to Instructor table
+//	@NotNull(message = "Instructor must be provided")// Foreign key column to Instructor table
     private User user;
 
 	@OneToMany(mappedBy = "course", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -49,10 +50,10 @@ public class Course {
 
 
 	@Column(name="price", nullable=true)
-	@Positive(message = "Price must be greater than zero")
+//	@Positive(message = "Price must be greater than zero")
 	private Double price;
 
-	@NotBlank(message = "Category is required")
+//	@NotBlank(message = "Category is required")
 	@Column(name="category")
 	private String category; 
 	
@@ -66,19 +67,19 @@ public class Course {
 
 	public Course(){}
 
-	public Course(CourseDTO courseDTO) {
+	public Course(CourseDTO courseDTO, User user ) {
 		this.title = courseDTO.getTitle();
 		this.description = courseDTO.getDescription();
 		this.price = courseDTO.getPrice();
 		this.category = courseDTO.getCategory();
-		this.user = courseDTO.getUser();
+		this.user = user;
 		List<Lecture> lectures = new ArrayList<Lecture>();
 
-		courseDTO.getLectures().forEach(lectureDTO -> {
+		Optional.ofNullable(courseDTO.getLectures()).ifPresent((l) -> l.forEach(lectureDTO -> {
 			Lecture lecture = new Lecture(lectureDTO,this);
 			lectures.add(lecture);
 
-		});
+		}));
 
 		this.lectures = lectures;
 	}

@@ -59,6 +59,7 @@ public class Section {
 		this.content = sectionDTO.getContent();
 		this.order = sectionDTO.getOrder();
 		this.lecture = lecture;
+        Optional.ofNullable(sectionDTO.getId()).ifPresent((id) -> this.id = id);
 	}
 
 	public UUID getId() {

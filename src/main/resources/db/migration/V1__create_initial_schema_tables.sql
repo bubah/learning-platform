@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS LEARNING_PLATFORM.USERS (
 CREATE TABLE IF NOT EXISTS LEARNING_PLATFORM.COURSES (
     ID UUID PRIMARY KEY,                                      -- Column for course ID
     TITLE VARCHAR(100) NOT NULL,                                      -- Column for course title
-    DESCRIPTION VARCHAR(500) NOT NULL,                                -- Column for course description
+    DESCRIPTION VARCHAR(500),                                -- Column for course description
     USER_ID UUID,                                               -- Foreign key for instructor
     PRICE DOUBLE PRECISION,                                           -- Column for course price
     CATEGORY VARCHAR(255) NOT NULL,                                   -- Column for course category

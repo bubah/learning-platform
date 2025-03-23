@@ -1,8 +1,10 @@
 package com.learning_platform.model;
 
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
+import com.learning_platform.dto.UserDTO;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
@@ -47,9 +49,43 @@ public class User {
 
 	public User() {}
 
-	public User(String username, String email, Role role) {
+	public User(UserDTO userDTO){
+		Optional.ofNullable(userDTO.getEmail()).ifPresent((email) -> this.email = email);
+		Optional.ofNullable(userDTO.getUsername()).ifPresent((username) -> this.username = username);
+		Optional.ofNullable(userDTO.getRole()).ifPresent((role) -> this.role = role);
+
+	}
+
+
+	public UUID getId() {
+		return id;
+	}
+
+	public void setId(UUID id) {
+		this.id = id;
+	}
+
+	public String getUsername() {
+		return username;
+	}
+
+	public void setUsername(String username) {
 		this.username = username;
+	}
+
+	public String getEmail() {
+		return email;
+	}
+
+	public void setEmail(String email) {
 		this.email = email;
+	}
+
+	public Role getRole() {
+		return role;
+	}
+
+	public void setRole(Role role) {
 		this.role = role;
 	}
 }

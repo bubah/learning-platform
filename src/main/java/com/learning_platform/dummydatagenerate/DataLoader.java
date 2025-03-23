@@ -30,7 +30,7 @@ public class DataLoader  implements CommandLineRunner {
 //         Create a User with the role of INSTRUCTOR
 //        User instructor = new User("testuser", "testuser@example.com", Role.INSTRUCTOR);
 //        userRepository.save(instructor);
-//
+////
 //        // Create Dummy Sections
 //        SectionDTO section1 = new SectionDTO.Builder()
 //                .setTitle("Variables and Expressions")

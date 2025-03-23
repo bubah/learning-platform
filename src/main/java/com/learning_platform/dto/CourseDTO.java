@@ -11,10 +11,10 @@ public class CourseDTO {
     private Optional<UUID> id = Optional.empty() ;
     private Optional<String> title = Optional.empty();
     private Optional<String> description = Optional.empty();;
-    private Optional<User> user = Optional.empty();;
     private Optional<List<LectureDTO>> lectures= Optional.empty();;
     private Optional<Double> price= Optional.empty();;
     private Optional<String> category= Optional.empty();;
+    private Optional<UserDTO> user = Optional.empty();
 
     public CourseDTO(){};
 
@@ -50,7 +50,7 @@ public class CourseDTO {
         return description.orElse(null);
     }
 
-    public User getUser() {
+    public UserDTO getUser() {
         return user.orElse(null);
     }
 
@@ -92,7 +92,7 @@ public class CourseDTO {
         this.lectures = Optional.ofNullable(lectures);
     }
 
-    public void setUser(User user) {
+    public void setUser(UserDTO user) {
         this.user = Optional.ofNullable(user);
     }
 
@@ -105,7 +105,7 @@ public class CourseDTO {
         private Optional<UUID> id = Optional.empty() ;
         private Optional<String> title = Optional.empty();
         private Optional<String> description = Optional.empty();;
-        private Optional<User> user = Optional.empty();;
+        private Optional<UserDTO> user = Optional.empty();;
         private Optional<List<LectureDTO>> lectures= Optional.empty();;
         private Optional<Double> price= Optional.empty();;
         private Optional<String> category= Optional.empty();;
@@ -125,7 +125,7 @@ public class CourseDTO {
             return this;
         }
 
-        public Builder setUser(User user) {
+        public Builder setUser(UserDTO user) {
             this.user = Optional.ofNullable(user);
             return  this;
         }
