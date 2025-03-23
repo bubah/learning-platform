@@ -56,4 +56,11 @@ public class CourseController {
 
         return ResponseEntity.ok(response);  // ✅ Returns success message
     }
+
+    @GetMapping("/helth-check")
+    public ResponseEntity<String> getHeathCheck(){
+//        Course course  = courseService.getCourseById(id);
+
+        return ResponseEntity.ok("Learning platform service");
+    }
 }
