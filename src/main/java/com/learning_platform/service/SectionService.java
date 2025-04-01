@@ -64,4 +64,15 @@ public class SectionService {
         return sectionRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Section with id: " + id + " Not Found"));
     }
+
+    public SectionDTO patchSection(SectionDTO sectionDTO, UUID id){
+
+        Section existingSection = fetchSection(id);
+        Optional.ofNullable(sectionDTO.getTitle()).ifPresent(existingSection::setTitle);
+        Optional.ofNullable(sectionDTO.getDescription()).ifPresent(existingSection::setDescription);
+        Optional.ofNullable(sectionDTO.getContent()).ifPresent(existingSection::setContent);
+        Optional.ofNullable(sectionDTO.getOrder()).ifPresent(existingSection::setOrder);
+
+        return new SectionDTO(sectionRepository.save(existingSection));
+    }
 }
