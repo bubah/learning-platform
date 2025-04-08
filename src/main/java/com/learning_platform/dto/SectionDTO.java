@@ -22,6 +22,14 @@ public class SectionDTO {
 
     public SectionDTO(){}
 
+    public SectionDTO(String title, String description, String content, Integer order, UUID lectureId){
+        this.title = Optional.of(title);
+        this.description = Optional.of(description);
+        this.content = Optional.of(content);
+        this.order = Optional.of(order);
+        this.lectureId = Optional.of(lectureId);
+    }
+
     public SectionDTO(Section section){
         this.id = Optional.of(section.getId());
         this.title = Optional.of(section.getTitle());
