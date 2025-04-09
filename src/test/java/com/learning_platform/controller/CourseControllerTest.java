@@ -120,8 +120,7 @@ public class CourseControllerTest {
     public void testDeleteCourse() {
         // Arrange
         UUID courseId = UUID.randomUUID();
-//        when(courseService.deleteCourse(courseId)).
-        // Act
+
         ResponseEntity<Map<String, String>> response = courseController.deleteCourse(courseId);
         // Assert
         assertEquals(HttpStatus.OK, response.getStatusCode());

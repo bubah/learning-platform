@@ -39,11 +39,7 @@ public class LectureController {
     @PostMapping
     public ResponseEntity<LectureDTO> createLecture(@RequestBody LectureDTO lecture){
         LectureDTO createdLecture = lectureService.createLecture(lecture);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(createdLecture.getId())
-                .toUri();
-        return ResponseEntity.created(location).body(createdLecture);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdLecture);
     }
 
     @PutMapping("/{id}")
