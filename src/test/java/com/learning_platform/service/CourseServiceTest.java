@@ -83,7 +83,7 @@ public class CourseServiceTest {
         try {
             courseService.getCourseById(courseId);
         } catch (Exception e) {
-            assertEquals("Course " + courseId + " Not Found", e.getMessage());
+            assertEquals("Course " + courseId + " Nt Found", e.getMessage());
         }
     }
 
