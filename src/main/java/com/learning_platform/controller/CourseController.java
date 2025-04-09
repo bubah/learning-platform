@@ -41,7 +41,7 @@ public class CourseController {
     public ResponseEntity<CourseDTO> createCourse(@Valid @RequestBody CourseDTO courseDTO){
         String errorMessage = CourseControllerValidation.validateCreate(courseDTO);
         CourseDTO savedCourse = courseService.createCourse(courseDTO);
-        return ResponseEntity.ok(savedCourse);
+        return ResponseEntity.status(201).body(savedCourse); // ✅ Returns 201 Created
     }
 
     @PutMapping("/{id}")
