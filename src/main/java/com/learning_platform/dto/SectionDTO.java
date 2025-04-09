@@ -22,13 +22,21 @@ public class SectionDTO {
 
     public SectionDTO(){}
 
+    public SectionDTO(String title, String description, String content, Integer order, UUID lectureId){
+        this.title = Optional.of(title);
+        this.description = Optional.of(description);
+        this.content = Optional.of(content);
+        this.order = Optional.of(order);
+        this.lectureId = Optional.of(lectureId);
+    }
+
     public SectionDTO(Section section){
-        this.id = Optional.of(section.getId());
-        this.title = Optional.of(section.getTitle());
-        this.description = Optional.of(section.getDescription());
-        this.content = Optional.of(section.getContent());
-        this.order = Optional.of(section.getOrder());
-        this.lectureId = Optional.of(section.getLecture().getId());
+        this.id = Optional.ofNullable(section.getId());
+        this.title = Optional.ofNullable(section.getTitle());
+        this.description = Optional.ofNullable(section.getDescription());
+        this.content = Optional.ofNullable(section.getContent());
+        this.order = Optional.ofNullable(section.getOrder());
+        this.lectureId = Optional.ofNullable(section.getLecture().getId());
     }
 
     public SectionDTO(Builder builder){

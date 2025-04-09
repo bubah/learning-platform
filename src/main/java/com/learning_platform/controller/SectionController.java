@@ -4,6 +4,7 @@ import com.learning_platform.dto.SectionDTO;
 import com.learning_platform.model.Section;
 import com.learning_platform.service.SectionService;
 import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -38,11 +39,7 @@ public class SectionController {
     @PostMapping
     public ResponseEntity<SectionDTO> createSection(@RequestBody SectionDTO section){
         SectionDTO createdSection  = sectionService.createSection(section);
-        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
-                .path("/{id}")
-                .buildAndExpand(createdSection.getId())
-                .toUri();
-        return ResponseEntity.created(location).body(createdSection);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdSection);
     }
 
     @PutMapping("/{id}")
@@ -52,7 +49,7 @@ public class SectionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String,String>> deleteLecture(@PathVariable UUID id){
+    public ResponseEntity<Map<String,String>> deleteSection(@PathVariable UUID id){
         sectionService.deleteSection(id);
         Map<String, String> response = new HashMap<>();
         response.put("message", "Section with ID " + id + " has been deleted successfully");

@@ -1,5 +1,6 @@
 package com.learning_platform.dto;
 
+import com.learning_platform.model.Course;
 import com.learning_platform.model.Lecture;
 
 import java.util.List;
@@ -23,14 +24,14 @@ public class LectureDTO {
         this.title = Optional.ofNullable(lecture.getTitle());
         this.description = Optional.ofNullable(lecture.getDescription());
         this.video_url = Optional.ofNullable(lecture.getVideo_url());
-        this.sections = Optional.of(
-                lecture.getSections()
-                        .stream()
+        this.sections = Optional.ofNullable(lecture.getSections())
+                .map(lectures -> lectures.stream()
                         .map(SectionDTO::new)
-                        .collect(java.util.stream.Collectors.toList())
-        );
+                        .toList());
+
         this.order = Optional.ofNullable(lecture.getOrder());
-        this.courseId = Optional.of(lecture.getCourse().getId());
+        this.courseId = Optional.ofNullable(lecture.getCourse())
+                .map(Course::getId);
     }
 
     public LectureDTO(Builder builder){
