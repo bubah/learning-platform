@@ -25,13 +25,13 @@ public class ReorderResourceController {
 
     @PostMapping("/lecture-reorder/{course_id}")
     public ResponseEntity<CourseDTO> reorderLectures(@PathVariable UUID course_id, @RequestBody ReorderResourceDTO reorderResourceDTO){
-              CourseDTO updatedCourse = reorderResourceService.orderLectures(course_id,reorderResourceDTO);
+        CourseDTO updatedCourse = reorderResourceService.orderLectures(course_id, reorderResourceDTO);
         return ResponseEntity.ok(updatedCourse);
     }
 
     @PostMapping("/section-reorder/{lecture_id}")
     public ResponseEntity<LectureDTO> reorderSections(@PathVariable UUID lecture_id, @RequestBody ReorderResourceDTO reorderResourceDTO){
-        LectureDTO updatedLecture = reorderResourceService.orderSections(lecture_id,reorderResourceDTO);
+        LectureDTO updatedLecture = reorderResourceService.orderSections(lecture_id, reorderResourceDTO);
         return ResponseEntity.ok(updatedLecture);
     }
 
