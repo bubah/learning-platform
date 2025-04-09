@@ -127,4 +127,24 @@ public class CourseControllerTest {
         verify(courseService).deleteCourse(courseId);
     }
 
+    @Test
+    public void testPatchCourse() {
+        // Arrange
+        UUID courseId = UUID.randomUUID();
+        CourseDTO courseDTO = new CourseDTO();
+        courseDTO.setTitle("Patched Course");
+
+        CourseDTO patchedCourse = new CourseDTO();
+        patchedCourse.setId(courseId);
+        patchedCourse.setTitle("Patched Course");
+
+        when(courseService.patchCourse(courseId, courseDTO)).thenReturn(patchedCourse);
+        // Act
+        ResponseEntity<CourseDTO> response = courseController.patchCourse(courseId, courseDTO);
+        // Assert
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertEquals(patchedCourse, response.getBody());
+        verify(courseService).patchCourse(courseId, courseDTO);
+    }
+
 }
