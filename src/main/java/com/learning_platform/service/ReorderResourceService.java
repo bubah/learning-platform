@@ -27,15 +27,15 @@ public class ReorderResourceService {
         this.courseRepository = courseRepository;
     }
 
-    public CourseDTO orderLectures(UUID course_id, ReorderResourceDTO reorderResourceDTO){
+    public CourseDTO orderLectures(UUID courseId, ReorderResourceDTO reorderResourceDTO){
         List<LectureDTO> updatedLectures = reorderResourceDTO.getLectures();
-        Course existingCourse = fetchCourse(course_id);
-        List<Lecture> lectures = existingCourse.getLectures();
+        Course existingCourse = fetchCourse(courseId);
+        List<Lecture> courseLectures = existingCourse.getLectures();
 
-        lectures.forEach(l -> {
-            updatedLectures.forEach(up -> {
-                if(l.getId().equals(up.getId())){
-                    Optional.of(up.getOrder()).ifPresent(l::setOrder);
+        courseLectures.forEach(existingLecture -> {
+            updatedLectures.forEach(updatedLecture -> {
+                if(existingLecture.getId().equals(updatedLecture.getId())){
+                    Optional.of(updatedLecture.getOrder()).ifPresent(existingLecture::setOrder);
                 }
             });
         });
@@ -46,15 +46,15 @@ public class ReorderResourceService {
 
     }
 
-    public LectureDTO orderSections(UUID lecture_Id, ReorderResourceDTO reorderResourceDTO) {
+    public LectureDTO orderSections(UUID lectureId, ReorderResourceDTO reorderResourceDTO) {
         List<SectionDTO> updatedSections = reorderResourceDTO.getSections();
-                Lecture existingLecture = fetchLecture(lecture_Id);
+        Lecture existingLecture = fetchLecture(lectureId);
         List<Section> existingSections = existingLecture.getSections();
 
-        existingSections.forEach(es -> {
-            updatedSections.forEach(up -> {
-                if(up.getId().equals(es.getId())){
-                    Optional.of(up.getOrder()).ifPresent(es::setOrder);
+        existingSections.forEach(existingSection -> {
+            updatedSections.forEach(updatedSection -> {
+                if(updatedSection.getId().equals(existingSection.getId())){
+                    Optional.of(updatedSection.getOrder()).ifPresent(existingSection::setOrder);
                 }
             });
         });
@@ -66,11 +66,11 @@ public class ReorderResourceService {
 
     private Course fetchCourse(UUID id){
         return courseRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Course with id: " + id + " Not Found"));
+                new ResourceNotFoundException("Course: " + id + " Not Found"));
     }
     private Lecture fetchLecture(UUID id){
         return lectureRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Course with id: " + id + " Not Found"));
+                new ResourceNotFoundException("Course: " + id + " Not Found"));
     }
 
 }
