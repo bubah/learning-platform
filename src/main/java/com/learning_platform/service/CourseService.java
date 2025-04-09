@@ -31,15 +31,13 @@ public class CourseService {
     public List<CourseDTO> getAllCourses() {
         List<Course> courses = courseRepository.findAll();
 
-        return courses.stream().map(course -> {
-            CourseDTO courseDTO = new CourseDTO(course);
-            return courseDTO;
-        }).collect(java.util.stream.Collectors.toList());
+        return courses.stream()
+                .map(CourseDTO::new)
+                .collect(java.util.stream.Collectors.toList());
     }
 
     public CourseDTO getCourseById(UUID id) {
-        Course course = courseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
+        Course course = fetchCourse(id);
         return new CourseDTO(course);
     }
 
@@ -54,8 +52,7 @@ public class CourseService {
     }
 
     public CourseDTO updateCourse(UUID id, CourseDTO updatedCourse) {
-        Course existingCourse = courseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
+        Course existingCourse = fetchCourse(id);
 
         existingCourse.setTitle(updatedCourse.getTitle());
         existingCourse.setDescription(updatedCourse.getDescription());
@@ -67,8 +64,7 @@ public class CourseService {
 
     // Update Some Fields for a Course
     public CourseDTO patchCourse(UUID id, CourseDTO updatedCourse) {
-        Course existingCourse = courseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
+        Course existingCourse = fetchCourse(id);
 
         existingCourse.setTitle(updatedCourse.getTitle());
         existingCourse.setDescription(updatedCourse.getDescription());
@@ -78,14 +74,13 @@ public class CourseService {
     }
 
     public void deleteCourse(UUID id){
-        Course course = courseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
+        Course course = fetchCourse(id);
         courseRepository.delete(course);
     }
 
-    public Course fetchCourse(UUID id){
+    private Course fetchCourse(UUID id){
         return courseRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("course not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
     }
 
 

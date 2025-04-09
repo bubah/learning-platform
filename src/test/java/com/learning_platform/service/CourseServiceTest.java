@@ -159,6 +159,49 @@ public class CourseServiceTest {
     }
 
     @Test
+    public void testPatchCourse() {
+        User user = new User();
+        user.setId(UUID.randomUUID());
+        user.setEmail("testuser@example.com");
+        UUID courseId = UUID.randomUUID();
+        Course existingCourse = new Course();
+        CourseDTO updatedCourse = new CourseDTO();
+        updatedCourse.setTitle("Updated Course");
+        updatedCourse.setDescription("Updated Description");
+        updatedCourse.setPrice(150.0);
+        updatedCourse.setCategory("Updated Category");
+
+        when(courseRepository.findById(courseId)).thenReturn(Optional.of(existingCourse));
+        when(courseRepository.save(any(Course.class))).thenReturn(new Course(updatedCourse, user));
+
+        CourseDTO result = courseService.patchCourse(courseId, updatedCourse);
+
+        assertEquals(updatedCourse.getTitle(), result.getTitle());
+        assertEquals(updatedCourse.getDescription(), result.getDescription());
+        assertEquals(updatedCourse.getPrice(), result.getPrice());
+        assertEquals(updatedCourse.getCategory(), result.getCategory());
+        verify(courseRepository).findById(courseId);
+        verify(courseRepository).save(existingCourse);
+    }
+
+    @Test
+    public void testPatchCourseWhenCourseNotFound() {
+        UUID courseId = UUID.randomUUID();
+        CourseDTO updatedCourse = new CourseDTO();
+        updatedCourse.setTitle("Updated Course");
+        updatedCourse.setDescription("Updated Description");
+        updatedCourse.setPrice(150.0);
+        updatedCourse.setCategory("Updated Category");
+        when(courseRepository.findById(courseId)).thenReturn(Optional.empty());
+
+        try {
+            courseService.patchCourse(courseId, updatedCourse);
+        } catch (Exception e) {
+            assertEquals("Course " + courseId + " Not Found", e.getMessage());
+        }
+    }
+
+    @Test
     public void testDeleteCourse() {
         UUID courseId = UUID.randomUUID();
         Course mockCourse = new Course();
