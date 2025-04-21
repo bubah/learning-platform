@@ -41,21 +41,18 @@ jobs:
       - name: This is the deploy tag
         run: echo ${GITHUB_SHA::7}
 
-      - name: Read bootstrap script into output
-        id: read_script
+      - name: Replace COMMIT_HASH in deploy script
         run: |
           COMMIT_HASH=${GITHUB_SHA::7}
-          echo "commands<<EOF" >> $GITHUB_OUTPUT
-          sed "s|{{COMMIT_HASH}}|$COMMIT_HASH|g" scripts/deploy-on-ec2.sh | sed 's/"/\\"/g' >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+          sed "s|{{COMMIT_HASH}}|$COMMIT_HASH|g" scripts/deploy-on-ec2.sh > temp-deploy.sh
 
       - name: Run bootstrap script via SSM
         run: |
-            aws ssm send-command \
+          aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --comment "Run deployment script from GitHub via SSM" \
             --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-            --parameters "commands=${{ steps.read_script.outputs.commands }}" \
+            --parameters "{\"commands\": [$(cat temp-deploy.sh | jq -Rs .)]}" \
             --timeout-seconds 600 \
             --max-concurrency "1" \
-            --max-errors "1" 
+            --max-errors "1"
