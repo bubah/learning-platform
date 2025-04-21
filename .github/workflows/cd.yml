@@ -1,0 +1,61 @@
+name: Learning Platform CD
+
+on:
+  push:
+    branches:
+      - master
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Build with Maven
+        run: ./mvnw clean package -DskipTests
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+        aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload jar to S3 with latest commit hash
+        run: |
+          COMMIT_HASH=${GITHUB_SHA::7}
+          aws s3 cp target/learning-platform-0.0.1-SNAPSHOT.jar \
+            s3://lp-mediaconvstack-artifact-repo-dev-805358685077/learning-platform/dev/$COMMIT_HASH/
+
+      - name: This is the deploy tag
+        run: echo ${GITHUB_SHA::7}
+
+      - name: Read bootstrap script into output
+        id: read_script
+        run: |
+          COMMIT_HASH=${GITHUB_SHA::7}
+          echo "commands<<EOF" >> $GITHUB_OUTPUT
+          sed "s|{{COMMIT_HASH}}|$COMMIT_HASH|g" scripts/deploy-on-ec2.sh | sed 's/"/\\"/g' >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Run bootstrap script via SSM
+        run: |
+            aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --comment "Run deployment script from GitHub via SSM" \
+            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --parameters "commands=${{ steps.read_script.outputs.commands }}" \
+            --timeout-seconds 600 \
+            --max-concurrency "1" \
+            --max-errors "1" 
