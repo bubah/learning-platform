@@ -12,8 +12,9 @@ echo "Fetching SSM parameters from path: ${ENV_PATH}"
 
 # Ensure the jq tool is available
 if ! command -v jq &> /dev/null; then
-    echo "❌ jq not found. Please install jq before running this script."
-    exit 1
+    echo "❌ jq not found. Installing jq before running this script."
+    yum install -y jq  # Amazon Linux
+    apt-get install -y jq  # Ubuntu
 fi
 
 PARAMS=$(aws ssm get-parameters-by-path --path "$ENV_PATH" --recursive --with-decryption --region us-east-1)

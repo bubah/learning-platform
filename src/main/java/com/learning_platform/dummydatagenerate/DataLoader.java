@@ -30,10 +30,10 @@ public class DataLoader  implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 //         Create a User with the role of INSTRUCTOR
-//        UserDTO instructorDto = new UserDTO.Builder().setUsername("testuser").setEmail("testuser@example.com").setRole(Role.INSTRUCTOR).build();
+        UserDTO instructorDto = new UserDTO.Builder().setUsername("testuser").setEmail("testuser@example.com").setRole(Role.INSTRUCTOR).build();
 
-//        User instructor = new User(instructorDto);
-//        userRepository.save(instructor);
+        User instructor = new User(instructorDto);
+        userRepository.save(instructor);
 ////
 //        // Create Dummy Sections
 //        SectionDTO section1 = new SectionDTO.Builder()
