@@ -1,8 +1,9 @@
 #!/bin/bash
 
 set -e  # Exit on error
+
 LOG_FILE="/var/log/springboot-deploy.log"
-exec > >(tee -a "$LOG_FILE") 2>&1
+exec 1>>"$LOG_FILE" 2>&1
 
 echo "🔑 Fetching environment variables from SSM..."
 
