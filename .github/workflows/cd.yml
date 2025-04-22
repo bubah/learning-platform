@@ -48,7 +48,7 @@ jobs:
 
       - name: Run bootstrap script via SSM
         run: |
-          aws ssm send-command \
+          COMMAND_ID=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --comment "Run deployment script from GitHub via SSM" \
             --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
