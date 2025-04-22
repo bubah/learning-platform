@@ -55,7 +55,7 @@ jobs:
             --parameters "{\"commands\": [$(cat temp-deploy.sh | jq -Rs .)]}" \
             --timeout-seconds 600 \
             --max-concurrency "1" \
-            --max-errors "1"
+            --max-errors "1" \
             --output text \
             --query "Command.CommandId")
       - name: Check command status
