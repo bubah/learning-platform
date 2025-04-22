@@ -34,7 +34,7 @@ done
 chmod +x "$ENV_FILE"  # Ensure it can be sourced
 
 echo "📦 Downloading JAR from S3..."
-aws s3 cp s3://lp-mediaconvstack-artifact-repo-dev-805358685077/learning-platform/dev/{{COMMIT_HASH}}/learning-platform.jar /opt/myapp/app.jar
+aws s3 cp s3://lp-mediaconvstack-artifact-repo-dev-805358685077/learning-platform/dev/{{COMMIT_HASH}}/learning-platform-0.0.1-SNAPSHOT.jar /opt/myapp/app.jar
 
 echo "🚀 Setting up systemd service..."
 
