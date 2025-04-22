@@ -56,3 +56,13 @@ jobs:
             --timeout-seconds 600 \
             --max-concurrency "1" \
             --max-errors "1"
+            --output text \
+            --query "Command.CommandId")
+      - name: Check command status
+        run: |
+          aws ssm wait command-executed \
+            --command-id $COMMAND_ID \
+            --instance-id ${{ secrets.EC2_INSTANCE_ID }}
+          echo "Command executed successfully"
+      - name: Clean up temporary deploy script
+        run: rm temp-deploy.sh
