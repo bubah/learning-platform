@@ -10,6 +10,49 @@ permissions:
   contents: read
 
 jobs:
+  migration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload flyway migration files to S3
+        run: |
+          COMMIT_HASH=${GITHUB_SHA::7}
+          aws s3 cp --recursive src/main/resources/db/ \
+            s3://lp-mediaconvstack-artifact-repo-dev-805358685077/learning-platform/dev/$COMMIT_HASH/
+
+      - name: Replace COMMIT_HASH in migration script
+        run: |
+          COMMIT_HASH=${GITHUB_SHA::7}
+          sed "s|{{COMMIT_HASH}}|$COMMIT_HASH|g" scripts/run-db-migrations.sh > temp-migrations.sh
+
+      - name: Run migration on EC2 using aws SSM.
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --comment "Run migration script from GitHub via SSM" \
+            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --parameters "{\"commands\": [$(cat temp-migrations.sh | jq -Rs .)]}" \
+            --timeout-seconds 600 \
+            --max-concurrency "1" \
+            --max-errors "1" \
+            --output text \
+            --query "Command.CommandId")
+
   deploy:
     runs-on: ubuntu-latest
 
