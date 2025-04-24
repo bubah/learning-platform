@@ -52,6 +52,19 @@ jobs:
             --max-errors "1" \
             --output text \
             --query "Command.CommandId")
+      - name: Check command status and get migration_ran and batch_id values
+        run: |
+          aws ssm wait command-executed \
+            --command-id $COMMAND_ID \
+            --instance-id ${{ secrets.EC2_INSTANCE_ID }}
+          echo "Command executed successfully"
+          # Get the output of the command
+          OUTPUT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --details)
+          # Extract migration_ran and batch_id values using jq
+          MIGRATION_RAN=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=migration_ran=)\w+')
+          BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=batch_id=)\d+')  
+          echo "MIGRATION_RAN=$MIGRATION_RAN" >> $GITHUB_ENV
+          echo "BATCH_ID=$BATCH_ID" >> $GITHUB_ENV
 
   deploy:
     runs-on: ubuntu-latest
@@ -109,3 +122,37 @@ jobs:
           echo "Command executed successfully"
       - name: Clean up temporary deploy script
         run: rm temp-deploy.sh
+
+  rollback:
+    runs-on: ubuntu-latest
+    needs: [migration, deploy]
+    if: needs.migration.outputs.migration_ran == 'true' && failure()
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Run rollback script via SSM
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --comment "Run rollback script from GitHub via SSM" \
+            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --parameters "{\"commands\": [$(cat scripts/rollback.sh | jq -Rs .), \"${{ needs.migration.outputs.batch_id }}\"]}"
+
+            --timeout-seconds 600 \
+            --max-concurrency "1" \
+            --max-errors "1" \
+            --output text \
+            --query "Command.CommandId")
