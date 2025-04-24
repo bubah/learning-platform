@@ -52,6 +52,7 @@ jobs:
             --max-errors "1" \
             --output text \
             --query "Command.CommandId")
+
       - name: Check command status and get migration_ran and batch_id values
         run: |
           aws ssm wait command-executed \
@@ -63,8 +64,8 @@ jobs:
           # Extract migration_ran and batch_id values using jq
           MIGRATION_RAN=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=migration_ran=)\w+')
           BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=batch_id=)\d+')  
-          echo "MIGRATION_RAN=$MIGRATION_RAN" >> $GITHUB_ENV
-          echo "BATCH_ID=$BATCH_ID" >> $GITHUB_ENV
+          echo "migration_ran=$MIGRATION_RAN" >> $GITHUB_ENV
+          echo "batch_id=$BATCH_ID" >> $GITHUB_ENV
 
   deploy:
     runs-on: ubuntu-latest
@@ -114,19 +115,21 @@ jobs:
             --max-errors "1" \
             --output text \
             --query "Command.CommandId")
+
       - name: Check command status
         run: |
           aws ssm wait command-executed \
             --command-id $COMMAND_ID \
             --instance-id ${{ secrets.EC2_INSTANCE_ID }}
           echo "Command executed successfully"
+
       - name: Clean up temporary deploy script
         run: rm temp-deploy.sh
 
   rollback:
     runs-on: ubuntu-latest
     needs: [migration, deploy]
-    if: needs.migration.outputs.migration_ran == 'true' && failure()
+    if: ${{ env.migration_ran == 'true' && needs.deploy.result == 'failure' }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -143,14 +146,17 @@ jobs:
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: ${{ secrets.AWS_REGION }}
 
+      - name: Replace BATCH_ID in rollback script
+        run: |
+          sed "s|{{BATCH_ID}}|${{ env.batch_id }}|g" scripts/rollback.sh > temp-rollback.sh
+
       - name: Run rollback script via SSM
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
             --comment "Run rollback script from GitHub via SSM" \
             --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-            --parameters "{\"commands\": [$(cat scripts/rollback.sh | jq -Rs .), \"${{ needs.migration.outputs.batch_id }}\"]}"
-
+            --parameters "{\"commands\": [$(cat temp-rollback.sh | jq -Rs .)]}" \
             --timeout-seconds 600 \
             --max-concurrency "1" \
             --max-errors "1" \

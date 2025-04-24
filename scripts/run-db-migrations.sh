@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -euo pipefail
-trap 'echo "❌ Migration script failed on line $LINENO"; echo "migration_ran=false"; echo "batch_id=null"; exit 1' ERR
+trap 'echo "❌ Migration script failed on line $LINENO"; echo "__output__migration_ran=false"; echo "__output__batch_id=null"; exit 1' ERR
 
 # === 1. Set Paths ===
 ENV_PATH="/lp/dev/"
@@ -26,6 +26,7 @@ source "$ENV_FILE"
 DB_HOST="$LEARNING_PLATFORM_DB_HOST"
 DB_USER="$LEARNING_PLATFORM_DB_USER"
 DB_NAME="$LEARNING_PLATFORM_DB_NAME"
+DB_PORT="$LEARNING_PLATFORM_DB_PORT"
 DB_PASSWORD="$LEARNING_PLATFORM_DB_PASSWORD"
 
 # === 4. Prepare Migration Directory ===
@@ -39,8 +40,8 @@ aws s3 sync "$S3_MIGRATION_PATH" "$FLYWAY_DIR"
 
 if [ -z "$(ls -A $FLYWAY_DIR)" ]; then
   echo "⚠️ No migration files found in $FLYWAY_DIR. Exiting."
-  echo "migration_ran=false"
-  echo "batch_id=null"
+  echo "__output__migration_ran=false"
+  echo "__output__batch_id=null"
   exit 0
 fi
 
@@ -51,7 +52,7 @@ DEPLOY_START_TIME=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT
 
 echo "🚀 Running Flyway Migration"
 /opt/flyway/flyway \
-  -url="jdbc:postgresql://${DB_HOST}:5432/${DB_NAME}" \
+  -url="jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}" \
   -user="${DB_USER}" \
   -password="${DB_PASSWORD}" \
   -locations=filesystem:"$FLYWAY_DIR" \
@@ -70,8 +71,8 @@ applied_versions=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "
 
 if [[ -z "$applied_versions" ]]; then
   echo "✅ No new migrations applied. Nothing to log."
-  echo "migration_ran=false"
-  echo "batch_id=null"
+  echo "__output__migration_ran=false"
+  echo "__output__batch_id=null"
   exit 0
 fi
 
@@ -89,5 +90,5 @@ done
 echo "✅ Migration batch $batch_id recorded successfully."
 
 # === 8. Output for SSM Response ===
-echo "migration_ran=true"
-echo "batch_id=$batch_id"
+echo "__output__migration_ran=true"
+echo "__output__batch_id=$batch_id"
