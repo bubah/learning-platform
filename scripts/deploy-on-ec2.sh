@@ -28,7 +28,8 @@ echo "# Auto-generated env vars for Spring Boot app" > "$ENV_FILE"
 # Parse and write env vars
 echo "$PARAMS" | jq -r '.Parameters[] | "\(.Name)=\(.Value)"' | while IFS='=' read -r full_name value; do
     var_name=$(basename "$full_name")
-    echo "export $var_name=\"$value\"" >> "$ENV_FILE"
+#    echo "export $var_name=\"$value\"" >> "$ENV_FILE"
+    echo "$var_name=\"$value\"" >> "$ENV_FILE"
 done
 
 chmod +x "$ENV_FILE"  # Ensure it can be sourced
