@@ -7,18 +7,18 @@ exec 1>>"$LOG_FILE" 2>&1
 
 echo "🔑 Fetching environment variables from SSM..."
 
-# === 1. Set Environment Variables ===
-ENV_PATH="/lp/dev/"
-ENV_FILE="/etc/profile.d/springboot_env.sh"
-
-echo "Fetching SSM parameters from path: ${ENV_PATH}"
-
 # Ensure the jq tool is available
 if ! command -v jq &> /dev/null; then
     echo "❌ jq not found. Installing jq before running this script."
     yum install -y jq  # Amazon Linux
     apt-get install -y jq  # Ubuntu
 fi
+
+# === 1. Set Environment Variables ===
+ENV_PATH="/lp/dev/"
+ENV_FILE="/etc/profile.d/springboot_env.sh"
+
+echo "Fetching SSM parameters from path: ${ENV_PATH}"
 
 PARAMS=$(aws ssm get-parameters-by-path --path "$ENV_PATH" --recursive --with-decryption --region us-east-1)
 

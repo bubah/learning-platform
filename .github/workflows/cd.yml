@@ -10,6 +10,64 @@ permissions:
   contents: read
 
 jobs:
+  migration:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Upload flyway migration files to S3
+        run: |
+          COMMIT_HASH=${GITHUB_SHA::7}
+          aws s3 cp --recursive src/main/resources/db/ \
+            s3://lp-mediaconvstack-artifact-repo-dev-805358685077/learning-platform/dev/$COMMIT_HASH/
+
+      - name: Replace COMMIT_HASH in migration script
+        run: |
+          COMMIT_HASH=${GITHUB_SHA::7}
+          sed "s|{{COMMIT_HASH}}|$COMMIT_HASH|g" scripts/run-db-migrations.sh > temp-migrations.sh
+
+      - name: Run migration on EC2 using aws SSM.
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --comment "Run migration script from GitHub via SSM" \
+            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --parameters "{\"commands\": [$(cat temp-migrations.sh | jq -Rs .)]}" \
+            --timeout-seconds 600 \
+            --max-concurrency "1" \
+            --max-errors "1" \
+            --output text \
+            --query "Command.CommandId")
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
+
+      - name: Check command status and get migration_ran and batch_id values
+        run: |
+          aws ssm wait command-executed \
+            --command-id $COMMAND_ID \
+            --instance-id ${{ secrets.EC2_INSTANCE_ID }}
+          echo "Command executed successfully"
+          # Get the output of the command
+          OUTPUT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --details)
+          # Extract migration_ran and batch_id values using jq
+          MIGRATION_RAN=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=migration_ran=)\w+')
+          BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=batch_id=)\d+')  
+          echo "migration_ran=$MIGRATION_RAN" >> $GITHUB_ENV
+          echo "batch_id=$BATCH_ID" >> $GITHUB_ENV
+
   deploy:
     runs-on: ubuntu-latest
 
@@ -58,11 +116,68 @@ jobs:
             --max-errors "1" \
             --output text \
             --query "Command.CommandId")
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
+
       - name: Check command status
         run: |
           aws ssm wait command-executed \
             --command-id $COMMAND_ID \
             --instance-id ${{ secrets.EC2_INSTANCE_ID }}
           echo "Command executed successfully"
+
       - name: Clean up temporary deploy script
         run: rm temp-deploy.sh
+
+  rollback:
+    runs-on: ubuntu-latest
+    needs: [migration, deploy]
+    if: ${{ env.migration_ran == 'true' && needs.deploy.result == 'failure' }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Replace BATCH_ID in rollback script
+        run: |
+          sed "s|{{BATCH_ID}}|${{ env.batch_id }}|g" scripts/rollback.sh > temp-rollback.sh
+
+      - name: Run rollback script via SSM
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --comment "Run rollback script from GitHub via SSM" \
+            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --parameters "{\"commands\": [$(cat temp-rollback.sh | jq -Rs .)]}" \
+            --timeout-seconds 600 \
+            --max-concurrency "1" \
+            --max-errors "1" \
+            --output text \
+            --query "Command.CommandId")
+
+      - name: Wait for rollback command to complete and parse output
+        run: |
+          aws ssm wait command-executed \
+            --command-id $COMMAND_ID \
+            --instance-id ${{ secrets.EC2_INSTANCE_ID }}
+          echo "Rollback command executed successfully"
+          
+          # Get the output of the command
+          OUTPUT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --details)
+
+          # Extract rollback_done and rolled_back_batch_id
+          ROLLBACK_DONE=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=rollback_done=)\w+')
+          ROLLED_BACK_BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=rolled_back_batch_id=)\d+')
+
+          echo "rollback_done=$ROLLBACK_DONE" >> $GITHUB_ENV
+          echo "rolled_back_batch_id=$ROLLED_BACK_BATCH_ID" >> $GITHUB_ENV
