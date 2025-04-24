@@ -52,6 +52,7 @@ jobs:
             --max-errors "1" \
             --output text \
             --query "Command.CommandId")
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
 
       - name: Check command status and get migration_ran and batch_id values
         run: |
@@ -115,6 +116,7 @@ jobs:
             --max-errors "1" \
             --output text \
             --query "Command.CommandId")
+          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
 
       - name: Check command status
         run: |
@@ -162,3 +164,20 @@ jobs:
             --max-errors "1" \
             --output text \
             --query "Command.CommandId")
+
+      - name: Wait for rollback command to complete and parse output
+        run: |
+          aws ssm wait command-executed \
+            --command-id $COMMAND_ID \
+            --instance-id ${{ secrets.EC2_INSTANCE_ID }}
+          echo "Rollback command executed successfully"
+          
+          # Get the output of the command
+          OUTPUT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --details)
+
+          # Extract rollback_done and rolled_back_batch_id
+          ROLLBACK_DONE=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=rollback_done=)\w+')
+          ROLLED_BACK_BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=rolled_back_batch_id=)\d+')
+
+          echo "rollback_done=$ROLLBACK_DONE" >> $GITHUB_ENV
+          echo "rolled_back_batch_id=$ROLLED_BACK_BATCH_ID" >> $GITHUB_ENV
