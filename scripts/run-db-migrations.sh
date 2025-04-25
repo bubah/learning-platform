@@ -98,6 +98,7 @@ echo "🚀 Running Flyway Migration"
   -url="jdbc:postgresql://${DB_HOST}:${DB_PORT}/${DB_NAME}" \
   -user="${DB_USER}" \
   -password="${DB_PASSWORD}" \
+  -schemas=learning_platform \
   -locations=filesystem:"$FLYWAY_DIR" \
   migrate
 
