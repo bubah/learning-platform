@@ -41,6 +41,7 @@ jobs:
           sed "s|{{COMMIT_HASH}}|$COMMIT_HASH|g" scripts/run-db-migrations.sh > temp-migrations.sh
 
       - name: Run migration on EC2 using aws SSM.
+        id: run-migration
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
@@ -52,20 +53,19 @@ jobs:
             --max-errors "1" \
             --output text \
             --query "Command.CommandId")
-          echo "command_id=$COMMAND_ID" >> "$GITHUB_OUTPUT"
+          echo "command_id=$COMMAND_ID" >> $GITHUB_OUTPUT
 
       - name: Check command status and get migration_ran and batch_id values
         run: |
+          COMMAND_ID=${{ steps.run-migration.outputs.command_id }}
           echo "Command ID: $COMMAND_ID"
           aws ssm wait command-executed \
             --command-id $COMMAND_ID \
             --instance-id ${{ secrets.EC2_INSTANCE_ID }}
           echo "Command executed successfully"
-          # Get the output of the command
           OUTPUT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --details)
-          # Extract migration_ran and batch_id values using jq
           MIGRATION_RAN=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=migration_ran=)\w+')
-          BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=batch_id=)\d+')  
+          BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=batch_id=)\d+')
           echo "migration_ran=$MIGRATION_RAN" >> $GITHUB_ENV
           echo "batch_id=$BATCH_ID" >> $GITHUB_ENV
           echo "::set-output name=migration_ran::$MIGRATION_RAN"
@@ -110,6 +110,7 @@ jobs:
           sed "s|{{COMMIT_HASH}}|$COMMIT_HASH|g" scripts/deploy-on-ec2.sh > temp-deploy.sh
 
       - name: Run bootstrap script via SSM
+        id: run-deploy
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
@@ -125,6 +126,7 @@ jobs:
 
       - name: Check command status
         run: |
+          COMMAND_ID=${{ steps.run-deploy.outputs.command_id }}
           echo "Command ID: $COMMAND_ID"
           aws ssm wait command-executed \
             --command-id $COMMAND_ID \
@@ -159,6 +161,7 @@ jobs:
           sed "s|{{BATCH_ID}}|${{ needs.migration.outputs.batch_id }}|g" scripts/rollback.sh > temp-rollback.sh
 
       - name: Run rollback script via SSM
+        id: run-rollback
         run: |
           COMMAND_ID=$(aws ssm send-command \
             --document-name "AWS-RunShellScript" \
@@ -173,6 +176,7 @@ jobs:
 
       - name: Wait for rollback command to complete and parse output
         run: |
+          COMMAND_ID=${{ steps.run-rollback.outputs.command_id }}
           echo "Command ID: $COMMAND_ID"
           aws ssm wait command-executed \
             --command-id $COMMAND_ID \
