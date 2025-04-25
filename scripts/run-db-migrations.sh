@@ -50,11 +50,20 @@ if [ -z "$(ls -A $FLYWAY_DIR)" ]; then
 fi
 
 # === Ensure PostgreSQL client is installed ===
-if ! command -v psql &> /dev/null; then
-  echo "🔧 psql not found. Installing PostgreSQL client..."
-  sudo yum install -y postgresql
+if ! command -v psql >/dev/null 2>&1; then
+  echo "📦 Installing PostgreSQL 15 client since psql is not installed..."
+
+  # Enable and install PostgreSQL 15
+  sudo amazon-linux-extras enable postgresql15
+  sudo yum clean metadata
+  sudo yum install -y postgresql15
+
+  # Optional: symlink so `psql` is available in PATH
+  sudo ln -sf /usr/pgsql-15/bin/psql /usr/bin/psql
+
+  echo "✅ PostgreSQL client installed: $(psql --version)"
 else
-  echo "✅ PostgreSQL client (psql) is already installed."
+  echo "✅ psql is already installed: $(psql --version)"
 fi
 
 # === Ensure Flyway is installed ===
