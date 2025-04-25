@@ -53,13 +53,13 @@ fi
 if ! command -v psql >/dev/null 2>&1; then
   echo "❌ psql not found. Installing PostgreSQL client..."
 
-  # Enable PostgreSQL 13 from Amazon Linux Extras
-  echo "Enabling PostgreSQL 13 repository from Amazon Linux Extras..."
-  sudo amazon-linux-extras enable postgresql13
+  # Enable PostgreSQL 14 from Amazon Linux Extras
+  echo "Enabling PostgreSQL 14 repository from Amazon Linux Extras..."
+  sudo amazon-linux-extras enable postgresql14
 
-  # Install PostgreSQL 13 client
-  echo "Installing PostgreSQL 13 client from Amazon Linux Extras..."
-  sudo yum install -y postgresql13 postgresql13-server
+  # Install PostgreSQL 14 client
+  echo "Installing PostgreSQL 14 client from Amazon Linux Extras..."
+  sudo yum install -y postgresql14 postgresql14-server
 
   # Verify installation
   echo "Verifying psql version..."
