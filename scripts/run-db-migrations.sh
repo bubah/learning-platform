@@ -49,6 +49,32 @@ if [ -z "$(ls -A $FLYWAY_DIR)" ]; then
   exit 0
 fi
 
+# === Ensure PostgreSQL client is installed ===
+if ! command -v psql &> /dev/null; then
+  echo "🔧 psql not found. Installing PostgreSQL client..."
+  sudo yum install -y postgresql
+else
+  echo "✅ PostgreSQL client (psql) is already installed."
+fi
+
+# === Ensure Flyway is installed ===
+FLYWAY_CLI_PATH="/opt/flyway/flyway"
+
+if [ ! -f "$FLYWAY_CLI_PATH" ]; then
+  echo "🔧 Flyway not found. Installing Flyway CLI..."
+  FLYWAY_VERSION="9.20.1"
+  TEMP_DIR="/tmp/flyway-install"
+  mkdir -p "$TEMP_DIR"
+  curl -L "https://repo1.maven.org/maven2/org/flywaydb/flyway-commandline/${FLYWAY_VERSION}/flyway-commandline-${FLYWAY_VERSION}-linux-x64.tar.gz" -o "$TEMP_DIR/flyway.tar.gz"
+  tar -xzf "$TEMP_DIR/flyway.tar.gz" -C "$TEMP_DIR"
+  sudo mkdir -p /opt/flyway
+  sudo cp -r "$TEMP_DIR/flyway-${FLYWAY_VERSION}"/* /opt/flyway/
+  sudo chmod +x /opt/flyway/flyway
+  echo "✅ Flyway $FLYWAY_VERSION installed at $FLYWAY_CLI_PATH"
+else
+  echo "✅ Flyway already installed at $FLYWAY_CLI_PATH"
+fi
+
 # === 6. Run Flyway Migration ===
 export PGPASSWORD="$DB_PASSWORD"
 echo "🔖 Getting current timestamp before migration..."
