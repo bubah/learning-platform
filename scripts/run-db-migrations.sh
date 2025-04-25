@@ -51,15 +51,19 @@ fi
 
 # === Ensure PostgreSQL client is installed ===
 if ! command -v psql >/dev/null 2>&1; then
-  echo "📦 Installing PostgreSQL 15 client since psql is not installed..."
+  echo "❌ psql not found. Installing PostgreSQL client..."
 
-  # Install PostgreSQL 12 or higher directly from Amazon Linux 2 repositories
-      echo "Installing PostgreSQL client from Amazon Linux 2 repo..."
-      sudo yum install -y postgresql12 postgresql12-server
+  # Enable PostgreSQL 13 from Amazon Linux Extras
+  echo "Enabling PostgreSQL 13 repository from Amazon Linux Extras..."
+  sudo amazon-linux-extras enable postgresql13
 
-      # Verify installation
-      echo "Verifying psql version..."
-      psql --version
+  # Install PostgreSQL 13 client
+  echo "Installing PostgreSQL 13 client from Amazon Linux Extras..."
+  sudo yum install -y postgresql13 postgresql13-server
+
+  # Verify installation
+  echo "Verifying psql version..."
+  psql --version
 else
   echo "✅ psql is already installed: $(psql --version)"
 fi
