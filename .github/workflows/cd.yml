@@ -58,7 +58,7 @@ jobs:
       - name: Wait for migration command to complete and parse output
         run: |
           COMMAND_ID=${{ steps.run-migration.outputs.command_id }}
-        
+          
           echo "⏳ Waiting for command to complete..."
           while true; do
             STATUS=$(aws ssm list-command-invocations \
@@ -66,39 +66,44 @@ jobs:
               --query 'CommandInvocations[0].Status' \
               --output text \
               --region ${{ secrets.AWS_REGION }})
-        
+          
             echo "Current status: $STATUS"
-        
+          
             if [[ "$STATUS" != "InProgress" && "$STATUS" != "Pending" ]]; then
               break
             fi
-        
+          
             sleep 5
           done
-        
+          
           OUTPUT=$(aws ssm list-command-invocations \
             --command-id "$COMMAND_ID" \
             --details \
             --query "CommandInvocations[0].CommandPlugins[0].{Status:Status, StdOut:Output, StdErr:StandardErrorContent}" \
             --output json \
             --region ${{ secrets.AWS_REGION }})
-        
+          
           echo "===== Full Command Invocation Details ====="
           echo "$OUTPUT"
           STATUS=$(echo "$OUTPUT" | jq -r '.Status')
           STDOUT=$(echo "$OUTPUT" | jq -r '.StdOut')
           STDERR=$(echo "$OUTPUT" | jq -r '.StdErr')
-        
+          
           echo "Status: $STATUS"
           echo "----- STDOUT -----"
           echo "$STDOUT"
           echo "----- STDERR -----"
-          echo "$STDERR"
-        
+          
           if [ "$STATUS" = "Success" ]; then
             MIGRATION_RAN=$(echo "$STDOUT" | grep -oP '(?<=migration_ran=)\w+')
             BATCH_ID=$(echo "$STDOUT" | grep -oP '(?<=batch_id=)\d+')
-        
+          
+            # If no migration ran, set migration_ran to false and batch_id to null
+            if [ -z "$MIGRATION_RAN" ]; then
+              MIGRATION_RAN=false
+              BATCH_ID=null
+            fi
+          
             echo "migration_ran=$MIGRATION_RAN" >> $GITHUB_ENV
             echo "batch_id=$BATCH_ID" >> $GITHUB_ENV
             echo "::set-output name=migration_ran::$MIGRATION_RAN"
@@ -119,6 +124,13 @@ jobs:
           OUTPUT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --details)
           MIGRATION_RAN=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=migration_ran=)\w+')
           BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=batch_id=)\d+')
+
+          # If no migration ran, set migration_ran to false and batch_id to null
+          if [ -z "$MIGRATION_RAN" ]; then
+            MIGRATION_RAN=false
+            BATCH_ID=null
+          fi
+
           echo "migration_ran=$MIGRATION_RAN" >> $GITHUB_ENV
           echo "batch_id=$BATCH_ID" >> $GITHUB_ENV
           echo "::set-output name=migration_ran::$MIGRATION_RAN"
