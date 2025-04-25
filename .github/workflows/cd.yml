@@ -84,7 +84,7 @@ jobs:
             --region ${{ secrets.AWS_REGION }})
           
           echo "===== Full Command Invocation Details ====="
-          echo "$OUTPUT"
+#          echo "$OUTPUT"
           STATUS=$(echo "$OUTPUT" | jq -r '.Status')
           STDOUT=$(echo "$OUTPUT" | jq -r '.StdOut')
           STDERR=$(echo "$OUTPUT" | jq -r '.StdErr')
@@ -95,7 +95,9 @@ jobs:
           echo "----- STDERR -----"
           
           if [ "$STATUS" = "Success" ]; then
+            echo "extracting migration_ran from output"
             MIGRATION_RAN=$(echo "$STDOUT" | grep -oP '(?<=migration_ran=)\w+')
+            echo "extracting batch_id from output"
             BATCH_ID=$(echo "$STDOUT" | grep -oP '(?<=batch_id=)\d+')
           
             # If no migration ran, set migration_ran to false and batch_id to null
