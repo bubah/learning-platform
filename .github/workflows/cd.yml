@@ -84,7 +84,7 @@ jobs:
             --region ${{ secrets.AWS_REGION }})
           
           echo "===== Full Command Invocation Details ====="
-#          echo "$OUTPUT"
+          echo "$OUTPUT"
           STATUS=$(echo "$OUTPUT" | jq -r '.Status')
           STDOUT=$(echo "$OUTPUT" | jq -r '.StdOut')
           STDERR=$(echo "$OUTPUT" | jq -r '.StdErr')
