@@ -55,6 +55,43 @@ jobs:
             --query "Command.CommandId")
           echo "command_id=$COMMAND_ID" >> $GITHUB_OUTPUT
 
+      - name: Wait for migration command to complete and parse output
+        run: |
+          COMMAND_ID=${{ steps.run-migration.outputs.command_id }}
+          aws ssm list-command-invocations \
+            --command-id $COMMAND_ID \
+            --details \
+            --region ${{ secrets.AWS_REGION }}
+          OUTPUT=$(aws ssm list-command-invocations \
+            --command-id $COMMAND_ID \
+            --details \
+            --query "CommandInvocations[0].CommandPlugins[0].{Status:Status, StdOut:Output, StdErr:StandardErrorContent}" \
+            --output json)
+          echo "===== Full Command Invocation Details ====="
+          echo "$OUTPUT"
+          STATUS=$(echo "$OUTPUT" | jq -r '.Status')
+          STDOUT=$(echo "$OUTPUT" | jq -r '.StdOut')
+          STDERR=$(echo "$OUTPUT" | jq -r '.StdErr')
+      
+          echo "Status: $STATUS"
+          echo "----- STDOUT -----"
+          echo "$STDOUT"
+          echo "----- STDERR -----"
+          echo "$STDERR"
+      
+          if [ "$STATUS" = "Success" ]; then
+          MIGRATION_RAN=$(echo "$STDOUT" | grep -oP '(?<=migration_ran=)\w+')
+          BATCH_ID=$(echo "$STDOUT" | grep -oP '(?<=batch_id=)\d+')
+          
+          echo "migration_ran=$MIGRATION_RAN" >> $GITHUB_ENV
+          echo "batch_id=$BATCH_ID" >> $GITHUB_ENV
+          echo "::set-output name=migration_ran::$MIGRATION_RAN"
+          echo "::set-output name=batch_id::$BATCH_ID"
+          else
+          echo "Command failed with status: $STATUS"
+          exit 1
+          fi
+
       - name: Check command status and get migration_ran and batch_id values
         run: |
           COMMAND_ID=${{ steps.run-migration.outputs.command_id }}
