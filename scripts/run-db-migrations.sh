@@ -1,5 +1,9 @@
 #!/bin/bash
 
+
+LOG_FILE="/var/log/springboot-migration.log"
+exec 1>>"$LOG_FILE" 2>&1
+
 set -euo pipefail
 trap 'echo "❌ Migration script failed on line $LINENO"; echo "__output__migration_ran=false"; echo "__output__batch_id=null"; exit 1' ERR
 
