@@ -1,10 +1,10 @@
 #!/bin/bash
 
 LOG_FILE="/var/log/springboot-migration.log"
-exec 1>>"$LOG_FILE" 2>&1
+exec > >(tee -a "$LOG_FILE") 2>&1
 
 set -euo pipefail
-trap 'echo "❌ Migration script failed on line $LINENO"; echo "__output__migration_ran=false" | tee -a "$LOG_FILE"; echo "__output__batch_id=null" | tee -a "$LOG_FILE"; exit 1' ERR
+trap 'echo "❌ Migration script failed on line $LINENO"; echo "__output__migration_ran=false"; echo "__output__batch_id=null"; exit 1' ERR
 
 # === 1. Set Paths ===
 ENV_PATH="/lp/dev/"
@@ -43,8 +43,8 @@ aws s3 sync "$S3_MIGRATION_PATH" "$FLYWAY_DIR"
 
 if [ -z "$(ls -A $FLYWAY_DIR)" ]; then
   echo "⚠️ No migration files found in $FLYWAY_DIR. Exiting."
-  echo "__output__migration_ran=false" | tee -a "$LOG_FILE"
-  echo "__output__batch_id=null" | tee -a "$LOG_FILE"
+  echo "__output__migration_ran=false"
+  echo "__output__batch_id=null"
   exit 0
 fi
 
@@ -52,11 +52,17 @@ fi
 if ! command -v psql >/dev/null 2>&1; then
   echo "❌ psql not found. Installing PostgreSQL client..."
 
+  # Enable the PostgreSQL 14 extras repo
   sudo amazon-linux-extras enable postgresql14
+
+  # Clean and update your YUM metadata
   sudo yum clean metadata
   sudo yum update -y
+
+  # Install the PostgreSQL 14 client
   sudo yum install -y postgresql
 
+  # Verify installation
   echo "Verifying psql version..."
   psql --version
 else
@@ -108,8 +114,8 @@ applied_versions=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "
 
 if [[ -z "$applied_versions" ]]; then
   echo "✅ No new migrations applied. Nothing to log."
-  echo "__output__migration_ran=false" | tee -a "$LOG_FILE"
-  echo "__output__batch_id=null" | tee -a "$LOG_FILE"
+  echo "__output__migration_ran=false"
+  echo "__output__batch_id=null"
   exit 0
 fi
 
@@ -127,5 +133,5 @@ done
 echo "✅ Migration batch $batch_id recorded successfully."
 
 # === 8. Output for SSM Response ===
-echo "__output__migration_ran=true" | tee -a "$LOG_FILE"
-echo "__output__batch_id=$batch_id" | tee -a "$LOG_FILE"
+echo "__output__migration_ran=true"
+echo "__output__batch_id=$batch_id"
