@@ -101,7 +101,7 @@ jobs:
             # If no migration ran, set migration_ran to false and batch_id to null
             if [ -z "$MIGRATION_RAN" ]; then
               MIGRATION_RAN=false
-              BATCH_ID="null"
+              BATCH_ID=""
             fi
           
             echo "migration_ran=$MIGRATION_RAN" >> $GITHUB_ENV
@@ -128,7 +128,7 @@ jobs:
           # If no migration ran, set migration_ran to false and batch_id to null
           if [ -z "$MIGRATION_RAN" ]; then
             MIGRATION_RAN=false
-            BATCH_ID="null"
+            BATCH_ID=""
           fi
 
           echo "migration_ran=$MIGRATION_RAN" >> $GITHUB_ENV
