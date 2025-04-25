@@ -108,7 +108,7 @@ echo "✅ Flyway migration complete."
 echo "🔍 Fetching applied migrations after $DEPLOY_START_TIME..."
 applied_versions=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "
   SELECT version
-  FROM flyway_schema_history
+  FROM learning_platform.flyway_schema_history
   WHERE success = true AND installed_on > TIMESTAMP '$DEPLOY_START_TIME'
   ORDER BY installed_on ASC
 " | xargs)
@@ -120,13 +120,13 @@ if [[ -z "$applied_versions" ]]; then
   exit 0
 fi
 
-batch_id=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT COALESCE(MAX(batch_id), 0) + 1 FROM schema_rollback_log" | xargs)
+batch_id=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "SELECT COALESCE(MAX(batch_id), 0) + 1 FROM learning_platform.schema_rollback_log" | xargs)
 echo "📝 Logging to rollback table with batch_id $batch_id"
 
 for version in $applied_versions; do
   echo "🧾 Logging version $version"
   psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
-    INSERT INTO schema_rollback_log (migration_version, applied_at, batch_id)
+    INSERT INTO learning_platform.schema_rollback_log (migration_version, applied_at, batch_id)
     VALUES ('$version', current_timestamp, $batch_id)
   "
 done

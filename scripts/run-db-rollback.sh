@@ -34,7 +34,7 @@ echo "🔄 Starting rollback for batch_id: $BATCH_ID"
 # === 4. Fetch Migrations to Rollback ===
 ROLLBACK_VERSIONS=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "
   SELECT migration_version
-  FROM schema_rollback_log
+  FROM learning_platform.schema_rollback_log
   WHERE batch_id = $BATCH_ID
   ORDER BY applied_at DESC
 " | xargs)
@@ -69,7 +69,7 @@ for version in $ROLLBACK_VERSIONS; do
   # === 6. Delete Flyway schema history entry ===
   echo "🗑️ Deleting Flyway schema history entry for version: $version"
   psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -c "
-    DELETE FROM flyway_schema_history WHERE version = '$version';
+    DELETE FROM learning_platform.flyway_schema_history WHERE version = '$version';
   "
 done
 
