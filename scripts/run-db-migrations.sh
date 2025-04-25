@@ -53,21 +53,13 @@ fi
 if ! command -v psql >/dev/null 2>&1; then
   echo "📦 Installing PostgreSQL 15 client since psql is not installed..."
 
-  # Install PostgreSQL repository
-  echo "Installing PostgreSQL repository for Amazon Linux 2..."
-  sudo yum install -y https://download.postgresql.org/pub/repos/yum/reporpms/EL-7-x86_64/pgdg-redhat-repo-latest.noarch.rpm
+  # Install PostgreSQL 12 or higher directly from Amazon Linux 2 repositories
+      echo "Installing PostgreSQL client from Amazon Linux 2 repo..."
+      sudo yum install -y postgresql12 postgresql12-server
 
-  # Enable PostgreSQL 12 repository (latest available version above 10)
-  echo "Enabling PostgreSQL 12 repository..."
-  sudo yum-config-manager --enable pgdg12
-
-  # Install PostgreSQL 12
-  echo "Installing PostgreSQL 12..."
-  sudo yum install -y postgresql12 postgresql12-server
-
-  # Verify installation
-  echo "Verifying psql version..."
-  psql --version
+      # Verify installation
+      echo "Verifying psql version..."
+      psql --version
 else
   echo "✅ psql is already installed: $(psql --version)"
 fi
