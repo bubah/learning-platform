@@ -1,5 +1,8 @@
 #!/bin/bash
 
+LOG_FILE="/var/log/springboot-rollback.log"
+exec 1>>"$LOG_FILE" 2>&1
+
 set -euo pipefail
 trap 'echo "❌ Rollback script failed on line $LINENO"' ERR
 
