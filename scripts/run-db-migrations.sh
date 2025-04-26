@@ -1,7 +1,7 @@
 #!/bin/bash
 
 LOG_FILE="/var/log/springboot-migration.log"
-RESULT_FILE="/tmp/migration_result.txt"
+RESULT_FILE="/tmp/migration_outputs.txt"
 : > "$RESULT_FILE"  # Clear result file at the start
 
 exec > >(tee -a "$LOG_FILE") 2>&1
@@ -9,8 +9,8 @@ exec > >(tee -a "$LOG_FILE") 2>&1
 set -euo pipefail
 trap '{
   echo "❌ Migration script failed on line $LINENO"
-  echo "__output__migration_ran=false" >> "$RESULT_FILE"
-  echo "__output__batch_id=null" >> "$RESULT_FILE"
+  echo "migration_ran=false" >> "$RESULT_FILE"
+  echo "batch_id=null" >> "$RESULT_FILE"
   exit 1
 }' ERR
 
@@ -51,8 +51,8 @@ aws s3 sync "$S3_MIGRATION_PATH" "$FLYWAY_DIR"
 
 if [ -z "$(ls -A $FLYWAY_DIR)" ]; then
   echo "⚠️ No migration files found in $FLYWAY_DIR. Exiting."
-  echo "__output__migration_ran=false" >> "$RESULT_FILE"
-  echo "__output__batch_id=null" >> "$RESULT_FILE"
+  echo "migration_ran=false" >> "$RESULT_FILE"
+  echo "batch_id=null" >> "$RESULT_FILE"
   exit 0
 fi
 
@@ -114,8 +114,8 @@ applied_versions=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "
 
 if [[ -z "$applied_versions" ]]; then
   echo "✅ No new migrations applied. Nothing to log."
-  echo "__output__migration_ran=false" >> "$RESULT_FILE"
-  echo "__output__batch_id=null" >> "$RESULT_FILE"
+  echo "migration_ran=false" >> "$RESULT_FILE"
+  echo "batch_id=null" >> "$RESULT_FILE"
   exit 0
 fi
 
@@ -133,5 +133,5 @@ done
 echo "✅ Migration batch $batch_id recorded successfully."
 
 # === 8. Output for External Fetching ===
-echo "__output__migration_ran=true" >> "$RESULT_FILE"
-echo "__output__batch_id=$batch_id" >> "$RESULT_FILE"
+echo "migration_ran=true" >> "$RESULT_FILE"
+echo "batch_id=$batch_id" >> "$RESULT_FILE"
