@@ -53,13 +53,39 @@ jobs:
             --max-errors "1" \
             --output text \
             --query "Command.CommandId")
-          echo "command_id=$COMMAND_ID" >> $GITHUB_OUTPUT
-
-      - name: Wait for migration command to complete and parse output
-        run: |
-          COMMAND_ID=${{ steps.run-migration.outputs.command_id }}
           
-          echo "⏳ Waiting for command to complete..."
+          echo "⏳ Waiting for migration run command to complete..."
+          while true; do
+            STATUS=$(aws ssm list-command-invocations \
+              --command-id "$COMMAND_ID" \
+              --query 'CommandInvocations[0].Status' \
+              --output text \
+              --region ${{ secrets.AWS_REGION }})
+          
+            echo "Current status: $STATUS"
+          
+            if [[ "$STATUS" != "InProgress" && "$STATUS" != "Pending" ]]; then
+              break
+            fi
+          
+            sleep 5
+          done
+
+      - name: Fetch Results from EC2
+        id: fetch-results
+        run: |
+          COMMAND_ID=$(aws ssm send-command \
+            --document-name "AWS-RunShellScript" \
+            --comment "Run migration script from GitHub via SSM" \
+            --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
+            --parameters '{"commands": ["cat /tmp/migration_outputs.txt"]}' \
+            --timeout-seconds 600 \
+            --max-concurrency "1" \
+            --max-errors "1" \
+            --output text \
+            --query "Command.CommandId")
+          
+          echo "⏳ Waiting for fetch result command to complete..."
           while true; do
             STATUS=$(aws ssm list-command-invocations \
               --command-id "$COMMAND_ID" \
@@ -93,13 +119,14 @@ jobs:
           echo "----- STDOUT -----"
           echo "$STDOUT"
           echo "----- STDERR -----"
+          echo "$STDERR"
           
           if [ "$STATUS" = "Success" ]; then
             echo "extracting migration_ran from output"
-            MIGRATION_RAN=$(echo "$STDOUT" | grep '__output__migration_ran' | cut -d '=' -f2)
+            MIGRATION_RAN=$(echo "$STDOUT" | grep 'migration_ran' | cut -d '=' -f2)
             echo "migration ran: $MIGRATION_RAN"
             echo "extracting batch_id from output"
-            BATCH_ID=$(echo "$STDOUT" | grep '__output__batch_id' | cut -d '=' -f2)
+            BATCH_ID=$(echo "$STDOUT" | grep 'batch_id' | cut -d '=' -f2)
             echo "batch_id: $BATCH_ID"
           
             # If no migration ran, set migration_ran to false and batch_id to null
@@ -116,32 +143,6 @@ jobs:
             echo "Command failed with status: $STATUS"
             exit 1
           fi
-
-      - name: Check command status and get migration_ran and batch_id values
-        run: |
-          COMMAND_ID=${{ steps.run-migration.outputs.command_id }}
-          echo "Command ID: $COMMAND_ID"
-          aws ssm wait command-executed \
-            --command-id $COMMAND_ID \
-            --instance-id ${{ secrets.EC2_INSTANCE_ID }}
-          echo "Command executed successfully"
-          OUTPUT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --details)
-          echo "Output in fin $OUTPUT"
-          MIGRATION_RAN=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep '__output__migration_ran' | cut -d '=' -f2)
-          echo "After grep $MIGRATION_RAN"
-          BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep '__output__batch_id' | cut -d '=' -f2)
-          echo "After batch_id $BATCH_ID"
-
-          # If no migration ran, set migration_ran to false and batch_id to null
-          if [ -z "$MIGRATION_RAN" ]; then
-            MIGRATION_RAN=false
-            BATCH_ID=""
-          fi
-
-          echo "migration_ran=$MIGRATION_RAN" >> $GITHUB_ENV
-          echo "batch_id=$BATCH_ID" >> $GITHUB_ENV
-          echo "::set-output name=migration_ran::$MIGRATION_RAN"
-          echo "::set-output name=batch_id::$BATCH_ID"
 
   deploy:
     runs-on: ubuntu-latest
