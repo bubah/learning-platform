@@ -1,10 +1,18 @@
 #!/bin/bash
 
 LOG_FILE="/var/log/springboot-migration.log"
+RESULT_FILE="/tmp/migration_result.txt"
+: > "$RESULT_FILE"  # Clear result file at the start
+
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 set -euo pipefail
-trap 'echo "❌ Migration script failed on line $LINENO"; echo "__output__migration_ran=false"; echo "__output__batch_id=null"; exit 1' ERR
+trap '{
+  echo "❌ Migration script failed on line $LINENO"
+  echo "__output__migration_ran=false" >> "$RESULT_FILE"
+  echo "__output__batch_id=null" >> "$RESULT_FILE"
+  exit 1
+}' ERR
 
 # === 1. Set Paths ===
 ENV_PATH="/lp/dev/"
@@ -43,26 +51,18 @@ aws s3 sync "$S3_MIGRATION_PATH" "$FLYWAY_DIR"
 
 if [ -z "$(ls -A $FLYWAY_DIR)" ]; then
   echo "⚠️ No migration files found in $FLYWAY_DIR. Exiting."
-  echo "__output__migration_ran=false"
-  echo "__output__batch_id=null"
+  echo "__output__migration_ran=false" >> "$RESULT_FILE"
+  echo "__output__batch_id=null" >> "$RESULT_FILE"
   exit 0
 fi
 
 # === Ensure PostgreSQL client is installed ===
 if ! command -v psql >/dev/null 2>&1; then
   echo "❌ psql not found. Installing PostgreSQL client..."
-
-  # Enable the PostgreSQL 14 extras repo
   sudo amazon-linux-extras enable postgresql14
-
-  # Clean and update your YUM metadata
   sudo yum clean metadata
   sudo yum update -y
-
-  # Install the PostgreSQL 14 client
   sudo yum install -y postgresql
-
-  # Verify installation
   echo "Verifying psql version..."
   psql --version
 else
@@ -114,8 +114,8 @@ applied_versions=$(psql -h "$DB_HOST" -U "$DB_USER" -d "$DB_NAME" -t -c "
 
 if [[ -z "$applied_versions" ]]; then
   echo "✅ No new migrations applied. Nothing to log."
-  echo "__output__migration_ran=false"
-  echo "__output__batch_id=null"
+  echo "__output__migration_ran=false" >> "$RESULT_FILE"
+  echo "__output__batch_id=null" >> "$RESULT_FILE"
   exit 0
 fi
 
@@ -132,6 +132,6 @@ done
 
 echo "✅ Migration batch $batch_id recorded successfully."
 
-# === 8. Output for SSM Response ===
-echo "__output__migration_ran=true"
-echo "__output__batch_id=$batch_id"
+# === 8. Output for External Fetching ===
+echo "__output__migration_ran=true" >> "$RESULT_FILE"
+echo "__output__batch_id=$batch_id" >> "$RESULT_FILE"
