@@ -97,8 +97,10 @@ jobs:
           if [ "$STATUS" = "Success" ]; then
             echo "extracting migration_ran from output"
             MIGRATION_RAN=$(echo "$STDOUT" | grep 'migration_ran=' | cut -d '=' -f2)
+            echo "migration ran: $MIGRATION_RAN"
             echo "extracting batch_id from output"
             BATCH_ID=$(echo "$STDOUT" | grep 'batch_id=' | cut -d '=' -f2)
+            echo "batch_id: $BATCH_ID"
           
             # If no migration ran, set migration_ran to false and batch_id to null
             if [ -z "$MIGRATION_RAN" ]; then
@@ -124,8 +126,11 @@ jobs:
             --instance-id ${{ secrets.EC2_INSTANCE_ID }}
           echo "Command executed successfully"
           OUTPUT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --details)
+          echo "Output in fin $OUTPUT"
           MIGRATION_RAN=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=migration_ran=)\w+')
+          echo "After grep $MIGRATION_RAN"
           BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep -oP '(?<=batch_id=)\d+')
+          echo "After batch_id $BATCH_ID"
 
           # If no migration ran, set migration_ran to false and batch_id to null
           if [ -z "$MIGRATION_RAN" ]; then
