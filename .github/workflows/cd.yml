@@ -96,10 +96,10 @@ jobs:
           
           if [ "$STATUS" = "Success" ]; then
             echo "extracting migration_ran from output"
-            MIGRATION_RAN=$(echo "$STDOUT" | grep '__output__migration_ran=' | cut -d '=' -f2)
+            MIGRATION_RAN=$(echo "$STDOUT" | grep '__output__migration_ran' | cut -d '=' -f2)
             echo "migration ran: $MIGRATION_RAN"
             echo "extracting batch_id from output"
-            BATCH_ID=$(echo "$STDOUT" | grep '__output__batch_id=' | cut -d '=' -f2)
+            BATCH_ID=$(echo "$STDOUT" | grep '__output__batch_id' | cut -d '=' -f2)
             echo "batch_id: $BATCH_ID"
           
             # If no migration ran, set migration_ran to false and batch_id to null
@@ -127,9 +127,9 @@ jobs:
           echo "Command executed successfully"
           OUTPUT=$(aws ssm list-command-invocations --command-id $COMMAND_ID --details)
           echo "Output in fin $OUTPUT"
-          MIGRATION_RAN=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep '__output__migration_ran=' | cut -d '=' -f2)
+          MIGRATION_RAN=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep '__output__migration_ran' | cut -d '=' -f2)
           echo "After grep $MIGRATION_RAN"
-          BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep '__output__batch_id=' | cut -d '=' -f2)
+          BATCH_ID=$(echo "$OUTPUT" | jq -r '.CommandInvocations[0].CommandPlugins[0].Output' | grep '__output__batch_id' | cut -d '=' -f2)
           echo "After batch_id $BATCH_ID"
 
           # If no migration ran, set migration_ran to false and batch_id to null
