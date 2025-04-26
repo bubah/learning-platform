@@ -96,9 +96,9 @@ jobs:
           
           if [ "$STATUS" = "Success" ]; then
             echo "extracting migration_ran from output"
-            MIGRATION_RAN=$(echo "$STDOUT" | grep -oP '(?<=migration_ran=)\w+')
+            MIGRATION_RAN=$(echo "$STDOUT" | grep 'migration_ran=' | cut -d '=' -f2)
             echo "extracting batch_id from output"
-            BATCH_ID=$(echo "$STDOUT" | grep -oP '(?<=batch_id=)\d+')
+            BATCH_ID=$(echo "$STDOUT" | grep 'batch_id=' | cut -d '=' -f2)
           
             # If no migration ran, set migration_ran to false and batch_id to null
             if [ -z "$MIGRATION_RAN" ]; then
