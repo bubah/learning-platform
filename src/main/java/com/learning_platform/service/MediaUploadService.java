@@ -16,22 +16,21 @@ import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
-public class S3Service {
+public class MediaUploadService {
     private final S3Client s3Client;
     private final String bucketName;
     private final S3Presigner s3Presigner;
     private final SectionRepository sectionRepository;
 
 
-    public S3Service(@Value("${aws.region}") String region,
-                     @Value("${aws.access-key}") String accessKey,
-                     @Value("${aws.secret-key}") String secretKey,
-                     @Value("${aws.s3.bucket-name}") String bucketName,
-                     SectionRepository sectionRepository) {
+    public MediaUploadService(@Value("${aws.region}") String region,
+                              @Value("${aws.access-key}") String accessKey,
+                              @Value("${aws.secret-key}") String secretKey,
+                              @Value("${aws.s3.bucket-name}") String bucketName,
+                              SectionRepository sectionRepository) {
 
         AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
 
@@ -53,26 +52,20 @@ public class S3Service {
     public String uploadFile(MultipartFile file, UUID sectionId) throws IOException {
         Section section = sectionRepository.findById(sectionId).orElseThrow(() -> new ResourceNotFoundException("Section Not Found"));
 
-            Lecture lecture = section.getLecture();
-            UUID lectureId = lecture.getId();
-            UUID courseID = lecture.getCourse().getId();
+        Lecture lecture = section.getLecture();
+        UUID lectureId = lecture.getId();
+        UUID courseID = lecture.getCourse().getId();
 
-            String fileKey = (courseID + "/" + lectureId + "/" + sectionId + "/" + file.getOriginalFilename()).toLowerCase();
+        String fileKey = (courseID + "/" + lectureId + "/" + sectionId + "/" + file.getOriginalFilename()).toLowerCase();
 
-            PutObjectRequest putObjectRequest = PutObjectRequest.builder()
-                    .bucket(bucketName)
-                    .key(fileKey)
-                    .contentType(file.getContentType()) // use actual content type
-                    .build();
+        PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                .bucket(bucketName)
+                .key(fileKey)
+                .contentType(file.getContentType()) // use actual content type
+                .build();
 
-                s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
-
-                String videoPath = "https://" + bucketName + ".s3.amazonaws.com/" + fileKey;
-
-
-                return videoPath;
-
-
+        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
+        return "https://" + bucketName + ".s3.amazonaws.com/" + fileKey;
     }
 
 }
