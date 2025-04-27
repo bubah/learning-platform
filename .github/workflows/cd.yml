@@ -78,7 +78,7 @@ jobs:
             --document-name "AWS-RunShellScript" \
             --comment "Run migration script from GitHub via SSM" \
             --targets "Key=instanceIds,Values=${{ secrets.EC2_INSTANCE_ID }}" \
-            --parameters '{"commands": ["cat /tmp/migration_outputs.txt"]}' \
+            --parameters '{"commands": ["cat /tmp/migration_outputs.txt && rm -f /tmp/migration_outputs.txt"]}' \
             --timeout-seconds 600 \
             --max-concurrency "1" \
             --max-errors "1" \
