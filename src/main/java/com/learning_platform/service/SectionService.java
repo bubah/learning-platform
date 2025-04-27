@@ -4,7 +4,9 @@ import com.learning_platform.dto.SectionDTO;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Section;
 import com.learning_platform.model.Lecture;
+import com.learning_platform.repository.LectureRepository;
 import com.learning_platform.repository.SectionRepository;
+import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,35 +16,33 @@ import java.util.UUID;
 @Service
 public class SectionService {
     private final SectionRepository sectionRepository;
-    private final LectureService lectureService;
+    private final LectureRepository lectureRepository;
 
-    public SectionService(SectionRepository sectionRepository, LectureService lectureService){
+    public SectionService(SectionRepository sectionRepository, LectureRepository lectureRepository) {
         this.sectionRepository = sectionRepository;
-        this.lectureService = lectureService;
+        this.lectureRepository = lectureRepository;
     }
 
     public List<SectionDTO> getAllSections(){
         List<Section> sections = sectionRepository.findAll();
-
-        return sections.stream().map(section -> {
-            SectionDTO sectionDTO = new SectionDTO(section);
-            return sectionDTO;
-        }).collect(java.util.stream.Collectors.toList());
+        return sections.stream().map(SectionDTO::new).collect(java.util.stream.Collectors.toList());
     }
 
     public SectionDTO getSection(UUID id){
-        Section section = sectionRepository.findById(id).orElseThrow(
-                () -> new ResourceNotFoundException("Section " + id + " Not Found")
-        );
-
+        Section section = fetchSection(id);
         return new SectionDTO(section);
     }
 
     public SectionDTO createSection(SectionDTO sectionDTO){
         UUID lectureId = sectionDTO.getLectureId();
-        Lecture lecture = lectureService.fetchLecture(lectureId);
+        Lecture lecture = fetchLecture(lectureId);
         Section section = new Section(sectionDTO, lecture);
         return new SectionDTO(sectionRepository.save(section));
+    }
+
+    private Lecture fetchLecture(UUID lectureId) {
+        return lectureRepository.findById(lectureId).orElseThrow(() ->
+                new ResourceNotFoundException("Lecture: " + lectureId + " Not Found"));
     }
 
     public SectionDTO updateSection(UUID id, SectionDTO updatedSection){
@@ -62,7 +62,7 @@ public class SectionService {
 
     private Section fetchSection(UUID id){
         return sectionRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Section with id: " + id + " Not Found"));
+                new ResourceNotFoundException("Section: " + id + " Not Found"));
     }
 
     public SectionDTO patchSection(SectionDTO sectionDTO, UUID id){

@@ -8,32 +8,24 @@ import com.learning_platform.repository.CourseRepository;
 import com.learning_platform.repository.LectureRepository;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
-import static java.util.Collections.sort;
 
 @Service
 public class LectureService {
 
     private final LectureRepository lectureRepository;
-    public final CourseService courseService;
     public final CourseRepository courseRepository;
 
-    public LectureService(LectureRepository lectureRepository, CourseService courseService, CourseRepository courseRepository) {
+    public LectureService(LectureRepository lectureRepository, CourseRepository courseRepository) {
         this.lectureRepository = lectureRepository;
-        this.courseService = courseService;
         this.courseRepository = courseRepository;
     }
 
     public List<LectureDTO> getAllLectures(){
         List<Lecture> lectures = lectureRepository.findAll();
 
-        return lectures.stream().map(lecture -> {
-            LectureDTO lectureDTO = new LectureDTO(lecture);
-            return lectureDTO;
-        }).collect(java.util.stream.Collectors.toList());
+        return lectures.stream().map(LectureDTO::new).collect(java.util.stream.Collectors.toList());
     }
 
     public LectureDTO getLecture(UUID id){
@@ -42,7 +34,7 @@ public class LectureService {
     }
 
     public LectureDTO createLecture(LectureDTO lectureDTO){
-        Course course = courseService.fetchCourse(lectureDTO.getCourseId());
+        Course course = fetchCourse(lectureDTO.getCourseId());
         Lecture lecture = new Lecture(lectureDTO, course);
         return new LectureDTO(lectureRepository.save(lecture));
     }
@@ -58,22 +50,29 @@ public class LectureService {
 
     public void deleteLecture(UUID id){
       Lecture lecture = fetchLecture(id);
-      Course course = courseService.fetchCourse(lecture.getCourse().getId());
+      Course course = fetchCourse(lecture.getCourse().getId());
       lectureRepository.delete(lecture);
-      List<Lecture> lectures = course.getLectures();
-      lectures.sort((a,b) -> a.getOrder() - b.getOrder());
+        Optional.ofNullable(course.getLectures()).ifPresent((lectures) -> {
+            List<Lecture> mutableLectures = new ArrayList<>(lectures); // Create a mutable copy
+            mutableLectures.sort(Comparator.comparingInt(Lecture::getOrder));
 
-      int count=0;
-      for(Lecture l : lectures){
-          l.setOrder(count);
-          count++;
-      }
-      course.setLectures(lectures);
-      courseRepository.save(course);
+            int count = 0;
+            for (Lecture l : mutableLectures) {
+                l.setOrder(count);
+                count++;
+            }
+            course.setLectures(mutableLectures);
+            courseRepository.save(course);
+        });
     }
 
     public Lecture fetchLecture(UUID id){
         return lectureRepository.findById(id).orElseThrow(() ->
                 new ResourceNotFoundException("Lecture with id: " + id + " Not Found"));
+    }
+
+    private Course fetchCourse(UUID id){
+        return courseRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Course " + id + " Not Found"));
     }
 }

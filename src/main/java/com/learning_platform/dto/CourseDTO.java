@@ -23,11 +23,10 @@ public class CourseDTO {
     this.title = Optional.ofNullable(course.getTitle());
     this.description = Optional.ofNullable(course.getDescription());
     this.price = Optional.ofNullable(course.getPrice());
-    this.lectures = Optional.of(course.getLectures()
-            .stream()
-            .map(LectureDTO::new)
-            .collect(java.util.stream.Collectors.toList())
-    );
+    this.lectures = Optional.ofNullable(course.getLectures())
+            .map(lectures -> lectures.stream()
+                    .map(LectureDTO::new)
+                    .toList());
     this.category = Optional.ofNullable(course.getCategory());
 
     }
