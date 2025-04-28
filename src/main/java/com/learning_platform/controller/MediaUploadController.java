@@ -12,19 +12,17 @@ import java.io.IOException;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/s3")
+@RequestMapping("/upload/media")
 public class MediaUploadController {
 
     private final MediaUploadService mediaUploadService;
-    private final SectionService sectionService;
 
-    public MediaUploadController(MediaUploadService mediaUploadService, SectionService sectionService) {
+    public MediaUploadController(MediaUploadService mediaUploadService) {
         this.mediaUploadService = mediaUploadService;
-        this.sectionService = sectionService;
     }
 
-    @PostMapping("/upload/{id}")
-    public ResponseEntity uploadFile(@RequestParam("file") MultipartFile file, @PathVariable UUID id) {
+    @PostMapping("/section/{id}")
+    public ResponseEntity uploadMedia(@RequestParam("file") MultipartFile file, @PathVariable UUID id) {
         try {
             mediaUploadService.uploadFile(file,id);
             return ResponseEntity.status(HttpStatus.OK).build();
