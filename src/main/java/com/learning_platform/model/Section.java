@@ -42,6 +42,8 @@ public class Section {
 	@Column(name = "section_order")
 	private Integer order;
 
+	@Column(name="upload_status", nullable=false)
+	private UploadStatus uploadStatus;
 
 	@Column(name="created_at",  nullable=false, updatable=false)
 	@CreationTimestamp
@@ -108,5 +110,13 @@ public class Section {
 
 	public void setOrder(Integer order) {
 		this.order = order;
+	}
+
+	public UploadStatus getUploadStatus() {
+		return uploadStatus;
+	}
+
+	public void setUploadStatus(UploadStatus uploadStatus) {
+		this.uploadStatus = uploadStatus;
 	}
 }
