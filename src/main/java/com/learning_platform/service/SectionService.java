@@ -60,11 +60,6 @@ public class SectionService {
         sectionRepository.delete(section);
     }
 
-    private Section fetchSection(UUID id){
-        return sectionRepository.findById(id).orElseThrow(() ->
-                new ResourceNotFoundException("Section: " + id + " Not Found"));
-    }
-
     public SectionDTO patchSection(SectionDTO sectionDTO, UUID id){
 
         Section existingSection = fetchSection(id);
@@ -74,5 +69,10 @@ public class SectionService {
         Optional.ofNullable(sectionDTO.getOrder()).ifPresent(existingSection::setOrder);
 
         return new SectionDTO(sectionRepository.save(existingSection));
+    }
+
+    private Section fetchSection(UUID id){
+        return sectionRepository.findById(id).orElseThrow(() ->
+                new ResourceNotFoundException("Section: " + id + " Not Found"));
     }
 }
