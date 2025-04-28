@@ -1,5 +1,6 @@
 package com.learning_platform.controller;
 
+import com.learning_platform.model.UploadStatus;
 import com.learning_platform.service.MediaUploadService;
 import com.learning_platform.service.SectionService;
 import org.springframework.http.HttpStatus;
@@ -23,10 +24,10 @@ public class MediaUploadController {
     }
 
     @PostMapping("/upload/{id}")
-    public ResponseEntity<String> uploadFile(@RequestParam("file") MultipartFile file, @PathVariable UUID id) {
+    public ResponseEntity uploadFile(@RequestParam("file") MultipartFile file, @PathVariable UUID id) {
         try {
-            String fileUrl = mediaUploadService.uploadFile(file,id);
-            return ResponseEntity.ok(fileUrl);
+            mediaUploadService.uploadFile(file,id);
+            return ResponseEntity.status(HttpStatus.OK).build();
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body("Failed to upload file: " + e.getMessage());

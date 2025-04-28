@@ -3,6 +3,7 @@ package com.learning_platform.dto;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.model.Section;
+import com.learning_platform.model.UploadStatus;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
@@ -19,15 +20,17 @@ public class SectionDTO {
     private Optional<String> description = Optional.empty();
     private Optional<Integer> order = Optional.empty();
     private Optional<UUID> lectureId = Optional.empty();
+    private Optional<UploadStatus> uploadStatus = Optional.empty();
 
     public SectionDTO(){}
 
-    public SectionDTO(String title, String description, String content, Integer order, UUID lectureId){
+    public SectionDTO(String title, String description, String content, Integer order, UUID lectureId, UploadStatus uploadStatus){
         this.title = Optional.of(title);
         this.description = Optional.of(description);
         this.content = Optional.of(content);
         this.order = Optional.of(order);
         this.lectureId = Optional.of(lectureId);
+        this.uploadStatus = Optional.of(uploadStatus);
     }
 
     public SectionDTO(Section section){
@@ -37,6 +40,7 @@ public class SectionDTO {
         this.content = Optional.ofNullable(section.getContent());
         this.order = Optional.ofNullable(section.getOrder());
         this.lectureId = Optional.ofNullable(section.getLecture().getId());
+        this.uploadStatus = Optional.ofNullable(section.getUploadStatus());
     }
 
     public SectionDTO(Builder builder){
@@ -46,6 +50,7 @@ public class SectionDTO {
         this.content = builder.content;
         this.order = builder.order;
         this.lectureId = builder.lectureId;
+        this.uploadStatus = builder.uploadStatus;
     }
 
     public UUID getId() {
@@ -96,6 +101,14 @@ public class SectionDTO {
         this.lectureId = Optional.ofNullable(lectureId);
     }
 
+    public UploadStatus getUploadStatus() {
+        return uploadStatus.orElse(null);
+    }
+
+    public void setUploadStatus(UploadStatus uploadStatus) {
+        this.uploadStatus = Optional.ofNullable(uploadStatus);
+    }
+
     // Static inner Builder class
     public static class Builder {
         private Optional<UUID> id = Optional.empty();
@@ -104,6 +117,7 @@ public class SectionDTO {
         private Optional<String> description = Optional.empty();
         private Optional<Integer> order = Optional.empty();
         private Optional<UUID> lectureId = Optional.empty();
+        private Optional<UploadStatus> uploadStatus = Optional.empty();
 
         public Builder setId(UUID id) {
             this.id = Optional.ofNullable(id);
@@ -132,6 +146,11 @@ public class SectionDTO {
 
         public Builder setLectureId(UUID lectureId) {
             this.lectureId = Optional.ofNullable(lectureId);
+            return this;
+        }
+
+        public Builder setUploadStatus(UploadStatus uploadStatus) {
+            this.uploadStatus = Optional.ofNullable(uploadStatus);
             return this;
         }
 

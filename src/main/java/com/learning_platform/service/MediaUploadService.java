@@ -3,11 +3,13 @@ package com.learning_platform.service;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.model.Section;
+import com.learning_platform.model.UploadStatus;
 import com.learning_platform.repository.SectionRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
@@ -26,30 +28,19 @@ public class MediaUploadService {
     private final SectionRepository sectionRepository;
 
 
-    public MediaUploadService(@Value("${aws.region}") String region,
-                              @Value("${aws.access-key}") String accessKey,
-                              @Value("${aws.secret-key}") String secretKey,
+    public MediaUploadService(AwsCredentialsProvider awsCredentialsProvider,
+                              S3Client s3Client,
+                                S3Presigner s3Presigner,
                               @Value("${aws.s3.bucket-name}") String bucketName,
                               SectionRepository sectionRepository) {
-
-        AwsBasicCredentials credentials = AwsBasicCredentials.create(accessKey, secretKey);
-
-        this.s3Client = S3Client.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                .build();
-
-        this.s3Presigner = S3Presigner.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(credentials))
-                .build();
-
+        this.s3Client = s3Client;
+        this.s3Presigner = s3Presigner;
         this.bucketName = bucketName;
         this.sectionRepository = sectionRepository;
     }
 
 
-    public String uploadFile(MultipartFile file, UUID sectionId) throws IOException {
+    public void uploadFile(MultipartFile file, UUID sectionId) throws IOException {
         Section section = sectionRepository.findById(sectionId).orElseThrow(() -> new ResourceNotFoundException("Section Not Found"));
 
         Lecture lecture = section.getLecture();
@@ -63,9 +54,12 @@ public class MediaUploadService {
                 .key(fileKey)
                 .contentType(file.getContentType()) // use actual content type
                 .build();
-
-        s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
-        return "https://" + bucketName + ".s3.amazonaws.com/" + fileKey;
+        try {
+            s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
+            section.setUploadStatus(UploadStatus.INPROGRESS);
+            sectionRepository.save(section);
+        }catch (Exception e){
+            throw new IOException("Failed to upload file: " + e.getMessage());
+        }
     }
-
 }
