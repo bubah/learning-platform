@@ -6,16 +6,10 @@ import java.util.UUID;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.learning_platform.dto.SectionDTO;
+import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.Data;
 
 @Entity
@@ -42,8 +36,9 @@ public class Section {
 	@Column(name = "section_order")
 	private Integer order;
 
+	@Enumerated(EnumType.STRING)
 	@Column(name="upload_status", nullable=false)
-	private UploadStatus uploadStatus;
+	private UploadStatus uploadStatus = UploadStatus.NOT_STARTED;
 
 	@Column(name="created_at",  nullable=false, updatable=false)
 	@CreationTimestamp
@@ -61,6 +56,8 @@ public class Section {
 		this.content = sectionDTO.getContent();
 		this.order = sectionDTO.getOrder();
 		this.lecture = lecture;
+		// shou
+		this.uploadStatus = sectionDTO.getUploadStatus();
         Optional.ofNullable(sectionDTO.getId()).ifPresent((id) -> this.id = id);
 	}
 

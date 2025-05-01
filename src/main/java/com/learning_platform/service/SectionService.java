@@ -4,6 +4,7 @@ import com.learning_platform.dto.SectionDTO;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Section;
 import com.learning_platform.model.Lecture;
+import com.learning_platform.model.UploadStatus;
 import com.learning_platform.repository.LectureRepository;
 import com.learning_platform.repository.SectionRepository;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
@@ -34,6 +35,9 @@ public class SectionService {
     }
 
     public SectionDTO createSection(SectionDTO sectionDTO){
+        if(sectionDTO.getUploadStatus() == null){
+            sectionDTO.setUploadStatus(UploadStatus.NOT_STARTED);
+        }
         UUID lectureId = sectionDTO.getLectureId();
         Lecture lecture = fetchLecture(lectureId);
         Section section = new Section(sectionDTO, lecture);
