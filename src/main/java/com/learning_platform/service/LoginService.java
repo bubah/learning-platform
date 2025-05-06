@@ -20,7 +20,6 @@ public class LoginService {
         userRepository.findByEmail(userDTO.getEmail())
                 .ifPresentOrElse(
                         user -> {
-
                             user.setLastLogin(LocalDateTime.now());
                             userRepository.save(user);
                         },
