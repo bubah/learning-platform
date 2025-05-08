@@ -8,7 +8,7 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @Configuration
 public class WebConfig {
-    @Value("${frontend_url}")
+    @Value("${frontend.url}")
     private String frontEndURL;
 
     @Bean
