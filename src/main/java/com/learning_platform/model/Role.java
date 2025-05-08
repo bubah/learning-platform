@@ -1,7 +1,7 @@
 package com.learning_platform.model;
 
 public enum Role {
-	LEANER,
+	LEARNER,
 	INSTRUCTOR,
 	ADMIN
 }
