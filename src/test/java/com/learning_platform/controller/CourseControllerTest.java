@@ -9,6 +9,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.oauth2.jwt.Jwt;
 
 import java.util.List;
 import java.util.Map;
@@ -79,6 +80,9 @@ public class CourseControllerTest {
 
     @Test
     public void testCreateCourse() {
+         String email = "test@email.com";
+         Jwt jwt = org.mockito.Mockito.mock(Jwt.class);
+         when(jwt.getClaimAsString("email")).thenReturn(email);
         // Arrange
         CourseDTO courseDTO = new CourseDTO();
         courseDTO.setTitle("New Course");
@@ -87,13 +91,13 @@ public class CourseControllerTest {
         createdCourse.setId(UUID.randomUUID());
         createdCourse.setTitle("New Course");
 
-        when(courseService.createCourse(courseDTO)).thenReturn(createdCourse);
+        when(courseService.createCourse(courseDTO, email)).thenReturn(createdCourse);
         // Act
-        ResponseEntity<CourseDTO> response = courseController.createCourse(courseDTO);
+        ResponseEntity<CourseDTO> response = courseController.createCourse(jwt, courseDTO);
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(createdCourse, response.getBody());
-        verify(courseService).createCourse(courseDTO);
+        verify(courseService).createCourse(courseDTO, email);
     }
 
     @Test

@@ -41,8 +41,7 @@ public class CourseService {
         return new CourseDTO(course);
     }
 
-    public CourseDTO createCourse(CourseDTO courseDTO) {
-        String email = "testuser@example.com";
+    public CourseDTO createCourse(CourseDTO courseDTO, String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("User with email " + email + " not found"));
 

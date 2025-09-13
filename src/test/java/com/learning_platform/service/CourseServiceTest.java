@@ -89,6 +89,7 @@ public class CourseServiceTest {
 
     @Test
     public void testCreateCourse() {
+        String email = "test@email.com";
         CourseDTO courseDTO = new CourseDTO();
         courseDTO.setTitle("New Course");
         courseDTO.setDescription("New Description");
@@ -105,11 +106,11 @@ public class CourseServiceTest {
         when(courseRepository.save(any(Course.class))).thenReturn(mockCourse);
         User mockUser = new User();
         mockUser.setId(UUID.randomUUID());
-        mockUser.setEmail("testuser@example.com");
+        mockUser.setEmail(email);
         when(userRepository.findByEmail(mockUser.getEmail()))
                 .thenReturn(java.util.Optional.of(mockUser));
 
-        CourseDTO createdCourse = courseService.createCourse(courseDTO);
+        CourseDTO createdCourse = courseService.createCourse(courseDTO, email);
 
         assertEquals(mockCourse.getId(), createdCourse.getId());
         assertEquals(mockCourse.getTitle(), createdCourse.getTitle());
