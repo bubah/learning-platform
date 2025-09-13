@@ -80,9 +80,9 @@ public class CourseControllerTest {
 
     @Test
     public void testCreateCourse() {
-         String email = "test@email.com";
+         UUID cognitoId = UUID.randomUUID();
          Jwt jwt = org.mockito.Mockito.mock(Jwt.class);
-         when(jwt.getClaimAsString("email")).thenReturn(email);
+         when(jwt.getClaimAsString("sub")).thenReturn(cognitoId.toString());
         // Arrange
         CourseDTO courseDTO = new CourseDTO();
         courseDTO.setTitle("New Course");
@@ -91,13 +91,13 @@ public class CourseControllerTest {
         createdCourse.setId(UUID.randomUUID());
         createdCourse.setTitle("New Course");
 
-        when(courseService.createCourse(courseDTO, email)).thenReturn(createdCourse);
+        when(courseService.createCourse(courseDTO, cognitoId)).thenReturn(createdCourse);
         // Act
         ResponseEntity<CourseDTO> response = courseController.createCourse(jwt, courseDTO);
         // Assert
         assertEquals(HttpStatus.CREATED, response.getStatusCode());
         assertEquals(createdCourse, response.getBody());
-        verify(courseService).createCourse(courseDTO, email);
+        verify(courseService).createCourse(courseDTO, cognitoId);
     }
 
     @Test
