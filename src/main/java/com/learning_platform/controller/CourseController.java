@@ -6,6 +6,8 @@ import com.learning_platform.service.CourseService;
 import com.learning_platform.validations.CourseControllerValidation;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,9 +40,10 @@ public class CourseController {
     }
 
     @PostMapping
-    public ResponseEntity<CourseDTO> createCourse(@Valid @RequestBody CourseDTO courseDTO){
+    public ResponseEntity<CourseDTO> createCourse(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CourseDTO courseDTO){
+        String email = jwt.getClaimAsString("email");
         String errorMessage = CourseControllerValidation.validateCreate(courseDTO);
-        CourseDTO savedCourse = courseService.createCourse(courseDTO);
+        CourseDTO savedCourse = courseService.createCourse(courseDTO, email);
         return ResponseEntity.status(201).body(savedCourse); // ✅ Returns 201 Created
     }
 
