@@ -41,9 +41,9 @@ public class CourseController {
 
     @PostMapping
     public ResponseEntity<CourseDTO> createCourse(@AuthenticationPrincipal Jwt jwt, @Valid @RequestBody CourseDTO courseDTO){
-        String email = jwt.getClaimAsString("email");
+        String cognitoId = jwt.getClaimAsString("sub");
         String errorMessage = CourseControllerValidation.validateCreate(courseDTO);
-        CourseDTO savedCourse = courseService.createCourse(courseDTO, email);
+        CourseDTO savedCourse = courseService.createCourse(courseDTO, UUID.fromString(cognitoId));
         return ResponseEntity.status(201).body(savedCourse); // ✅ Returns 201 Created
     }
 
