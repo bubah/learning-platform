@@ -41,9 +41,6 @@ public class MediaUploadServiceTest {
     private S3Client s3Client;
 
     @Mock
-    private AwsCredentialsProvider awsCredentialsProvider;
-
-    @Mock
     private S3Presigner s3Presigner;
 
     @Mock
@@ -57,7 +54,7 @@ public class MediaUploadServiceTest {
         // Initialize mocks and any other setup needed before each test
         // This can include setting up the S3Client, S3Presigner, and SectionRepository mocks
         this.bucketName = "expected/file/path"; // Replace with the expected file path
-        this.mediaUploadService = new MediaUploadService(awsCredentialsProvider, s3Client, s3Presigner, bucketName, sectionRepository);
+        this.mediaUploadService = new MediaUploadService(s3Client, s3Presigner, bucketName, sectionRepository);
     }
 
 

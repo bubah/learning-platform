@@ -14,10 +14,14 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedUploadPartRequest;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -28,7 +32,7 @@ public class MediaUploadService {
     private final SectionRepository sectionRepository;
 
 
-    public MediaUploadService(AwsCredentialsProvider awsCredentialsProvider,
+    public MediaUploadService(
                               S3Client s3Client,
                                 S3Presigner s3Presigner,
                               @Value("${aws.s3.bucket-name}") String bucketName,
@@ -37,6 +41,52 @@ public class MediaUploadService {
         this.s3Presigner = s3Presigner;
         this.bucketName = bucketName;
         this.sectionRepository = sectionRepository;
+    }
+
+    public String initiateMultipartUpload(String key) {
+        CreateMultipartUploadRequest request = CreateMultipartUploadRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .build();
+
+        CreateMultipartUploadResponse response = s3Client.createMultipartUpload(request);
+        return response.uploadId();
+    }
+
+    public List<String> generatePresignedUrls(String key, String uploadId, int partCount) {
+        List<String> urls = new ArrayList<>();
+
+        for (int i = 1; i <= partCount; i++) {
+            UploadPartRequest request = UploadPartRequest.builder()
+                    .bucket(bucketName)
+                    .key(key)
+                    .uploadId(uploadId)
+                    .partNumber(i)
+                    .build();
+
+            PresignedUploadPartRequest preSignedRequest =
+                    s3Presigner.presignUploadPart(r -> r
+                            .signatureDuration(Duration.ofMinutes(15)) // expire time
+                            .uploadPartRequest(request));
+
+            urls.add(preSignedRequest.url().toString());
+        }
+        return urls;
+    }
+
+    public void completeMultipartUpload(String key, String uploadId, List<CompletedPart> parts) {
+        CompletedMultipartUpload completedUpload = CompletedMultipartUpload.builder()
+                .parts(parts)
+                .build();
+
+        CompleteMultipartUploadRequest request = CompleteMultipartUploadRequest.builder()
+                .bucket(bucketName)
+                .key(key)
+                .uploadId(uploadId)
+                .multipartUpload(completedUpload)
+                .build();
+
+        s3Client.completeMultipartUpload(request);
     }
 
 
