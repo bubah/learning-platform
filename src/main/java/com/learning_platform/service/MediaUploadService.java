@@ -1,5 +1,9 @@
 package com.learning_platform.service;
 
+import com.learning_platform.dto.GetPresingedUrlsRequestDTO;
+import com.learning_platform.dto.MediaUploadRequestDTO;
+import com.learning_platform.dto.UploadMediaCompleteRequestDTO;
+import com.learning_platform.dto.UploadMediaInitRequestDTO;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.model.Section;
@@ -53,14 +57,14 @@ public class MediaUploadService {
         return response.uploadId();
     }
 
-    public List<String> generatePresignedUrls(String key, String uploadId, int partCount) {
+    public List<String> generatePresignedUrls(GetPresingedUrlsRequestDTO requestDTO) {
         List<String> urls = new ArrayList<>();
 
-        for (int i = 1; i <= partCount; i++) {
+        for (int i = 1; i <= requestDTO.getPartCount(); i++) {
             UploadPartRequest request = UploadPartRequest.builder()
                     .bucket(bucketName)
-                    .key(key)
-                    .uploadId(uploadId)
+                    .key(requestDTO.getKey())
+                    .uploadId(requestDTO.getUploadId())
                     .partNumber(i)
                     .build();
 
@@ -74,15 +78,15 @@ public class MediaUploadService {
         return urls;
     }
 
-    public void completeMultipartUpload(String key, String uploadId, List<CompletedPart> parts) {
+    public void completeMultipartUpload(UploadMediaCompleteRequestDTO requestDTO) {
         CompletedMultipartUpload completedUpload = CompletedMultipartUpload.builder()
-                .parts(parts)
+                .parts(requestDTO.getCompletedParts())
                 .build();
 
         CompleteMultipartUploadRequest request = CompleteMultipartUploadRequest.builder()
                 .bucket(bucketName)
-                .key(key)
-                .uploadId(uploadId)
+                .key(requestDTO.getKey())
+                .uploadId(requestDTO.getUploadId())
                 .multipartUpload(completedUpload)
                 .build();
 
@@ -111,5 +115,13 @@ public class MediaUploadService {
         }catch (Exception e){
             throw new IOException("Failed to upload file: " + e.getMessage());
         }
+    }
+
+    public String generateObjectKey(UploadMediaInitRequestDTO request) {
+        Section section = sectionRepository.findById(UUID.fromString(request.getSectionId())).orElseThrow(() -> new ResourceNotFoundException("Section Not Found"));
+        Lecture lecture = section.getLecture();
+        UUID lectureId = lecture.getId();
+        UUID courseID = lecture.getCourse().getId();
+        return (courseID + "/" + lectureId + "/" + section.getId() + "/" + request.getFileName().toLowerCase());
     }
 }
