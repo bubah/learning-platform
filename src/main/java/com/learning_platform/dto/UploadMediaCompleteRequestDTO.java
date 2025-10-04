@@ -8,7 +8,7 @@ import java.util.Optional;
 public class UploadMediaCompleteRequestDTO {
     private Optional<String> uploadId = Optional.empty();
     private Optional<String> key = Optional.empty();
-    private Optional<List<CompletedPart>> completedParts = Optional.empty();
+    private Optional<List<CompletedPartDTO>> completedParts = Optional.empty();
 
     public UploadMediaCompleteRequestDTO() {
     }
@@ -31,11 +31,11 @@ public class UploadMediaCompleteRequestDTO {
         this.key = Optional.ofNullable(key);
     }
 
-    public List<CompletedPart> getCompletedParts() {
+    public List<CompletedPartDTO> getCompletedParts() {
         return completedParts.orElse(null);
     }
 
-    public void setCompletedParts(List<CompletedPart> completedParts) {
+    public void setCompletedParts(List<CompletedPartDTO> completedParts) {
         this.completedParts = Optional.ofNullable(completedParts);
     }
 

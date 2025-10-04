@@ -1,9 +1,6 @@
 package com.learning_platform.service;
 
-import com.learning_platform.dto.GetPresingedUrlsRequestDTO;
-import com.learning_platform.dto.MediaUploadRequestDTO;
-import com.learning_platform.dto.UploadMediaCompleteRequestDTO;
-import com.learning_platform.dto.UploadMediaInitRequestDTO;
+import com.learning_platform.dto.*;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.model.Section;
@@ -12,11 +9,7 @@ import com.learning_platform.repository.SectionRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
-import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
@@ -80,7 +73,7 @@ public class MediaUploadService {
 
     public void completeMultipartUpload(UploadMediaCompleteRequestDTO requestDTO) {
         CompletedMultipartUpload completedUpload = CompletedMultipartUpload.builder()
-                .parts(requestDTO.getCompletedParts())
+                .parts(convertToSdkParts(requestDTO.getCompletedParts()))
                 .build();
 
         CompleteMultipartUploadRequest request = CompleteMultipartUploadRequest.builder()
@@ -91,6 +84,14 @@ public class MediaUploadService {
                 .build();
 
         s3Client.completeMultipartUpload(request);
+    }
+
+    private List<CompletedPart> convertToSdkParts(List<CompletedPartDTO> completedParts) {
+        return completedParts.stream().map(dto -> CompletedPart.builder()
+                .partNumber(dto.getPartNumber())
+                .eTag(dto.getETag())
+                .build()
+        ).toList();
     }
 
 

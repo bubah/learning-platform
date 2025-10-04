@@ -1,6 +1,7 @@
 package com.learning_platform.service;
 
 import com.learning_platform.dto.SectionDTO;
+import com.learning_platform.model.ContentType;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.model.Section;
 import com.learning_platform.repository.LectureRepository;
@@ -125,7 +126,7 @@ public class SectionServiceTest {
         sectionDTO.setTitle("New Section");
         sectionDTO.setDescription("New Description");
         sectionDTO.setOrder(1);
-        sectionDTO.setContent("New Content");
+        sectionDTO.setContentType(ContentType.VIDEO);
         sectionDTO.setLectureId(lectureId);
 
         Lecture lecture = new Lecture();
@@ -151,7 +152,7 @@ public class SectionServiceTest {
         updatedSection.setTitle("Updated Section");
         updatedSection.setDescription("Updated Description");
         updatedSection.setOrder(2);
-        updatedSection.setContent("Updated Content");
+        updatedSection.setContentType(ContentType.VIDEO);
 
         Lecture lecture = new Lecture();
         lecture.setId(UUID.randomUUID());

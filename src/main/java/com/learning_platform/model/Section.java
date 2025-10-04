@@ -4,13 +4,10 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.learning_platform.dto.SectionDTO;
 import jakarta.persistence.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-
-import lombok.Data;
 
 @Entity
 @Table(name = "Sections", schema = "LEARNING_PLATFORM")
@@ -24,11 +21,14 @@ public class Section {
 	@JoinColumn(name="lecture_id")
 	private Lecture lecture;
 
+	@OneToOne(mappedBy = "section", cascade = CascadeType.ALL, orphanRemoval = true)
+	private Content content;
+
 	@Column(nullable=false, name="title")
 	private String title;
 
-	@Column(nullable=false, name="content")
-	private String content;
+	@Column(nullable=false, name="contentType")
+	private ContentType contentType;
 
 	@Column(nullable=false, name="description")
 	private String description;
@@ -53,7 +53,7 @@ public class Section {
 	public Section(SectionDTO sectionDTO, Lecture lecture){
 		this.title = sectionDTO.getTitle();
 		this.description = sectionDTO.getDescription();
-		this.content = sectionDTO.getContent();
+		this.contentType = sectionDTO.getContentType();
 		this.order = sectionDTO.getOrder();
 		this.lecture = lecture;
 		// shou
@@ -85,12 +85,12 @@ public class Section {
 		this.title = title;
 	}
 
-	public String getContent() {
-		return content;
+	public ContentType getContentType() {
+		return contentType;
 	}
 
-	public void setContent(String content) {
-		this.content = content;
+	public void setContentType(ContentType contentType) {
+		this.contentType = contentType;
 	}
 
 	public String getDescription() {
@@ -115,5 +115,13 @@ public class Section {
 
 	public void setUploadStatus(UploadStatus uploadStatus) {
 		this.uploadStatus = uploadStatus;
+	}
+
+	public Content getContent() {
+		return content;
+	}
+
+	public void setContent(Content content) {
+		this.content = content;
 	}
 }

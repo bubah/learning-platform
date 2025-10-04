@@ -26,7 +26,6 @@ CREATE TABLE IF NOT EXISTS LEARNING_PLATFORM.LECTURES (
     ID UUID PRIMARY KEY,                                      -- UUID type for the lecture's primary key
     COURSE_ID UUID,                                           -- Foreign key for the related Course (ManyToOne)
     TITLE VARCHAR(255) NOT NULL,                              -- Title of the lecture
-    video_url VARCHAR(255),                                   -- URL for the video associated with the lecture
     DESCRIPTION TEXT NOT NULL,                                -- Description of the lecture
     CREATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Creation timestamp, auto-filled
     UPDATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,  -- Update timestamp, auto-filled
@@ -37,9 +36,20 @@ CREATE TABLE IF NOT EXISTS LEARNING_PLATFORM.SECTIONS (
     ID UUID PRIMARY KEY,                                      -- Column for section ID
     LECTURE_ID UUID,                                                  -- Foreign key for lecture
     TITLE VARCHAR(255) NOT NULL,                                       -- Column for section title
-    CONTENT TEXT NOT NULL,                                             -- Column for section content
+    CONTENT_TYPE VARCHAR(20) NOT NULL,                                 -- Column for section content type
     DESCRIPTION TEXT NOT NULL,                                         -- Column for section description
     CREATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,           -- Timestamp for creation
     UPDATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,           -- Timestamp for update
     CONSTRAINT FK_LECTURE_ID FOREIGN KEY (LECTURE_ID) REFERENCES LEARNING_PLATFORM.LECTURES(ID)  -- Foreign key constraint to LECTURES
 );
+
+CREATE TABLE LEARNING_PLATFORM.VIDEO_CONTENT (
+    ID UUID PRIMARY KEY,
+    SECTION_ID UUID,
+    S3_KEY TEXT NOT NULL,
+    LENGTH_SECONDS INT,
+    CREATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,           -- Timestamp for creation
+    UPDATED_AT TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT FK_SECTION_ID FOREIGN KEY (SECTION_ID) REFERENCES LEARNING_PLATFORM.SECTIONS(ID) ON DELETE CASCADE
+);
+
