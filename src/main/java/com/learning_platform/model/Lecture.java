@@ -6,17 +6,12 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.learning_platform.dto.LectureDTO;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
-import lombok.Data;
-
-	@Entity
+@Entity
 	@Table(name = "Lectures", schema = "LEARNING_PLATFORM")
 	public class Lecture {
 		
@@ -32,7 +27,6 @@ import lombok.Data;
 		@Column(nullable=false, name="title")
 		private String title;
 
-		private String video_url;
 		private String description;
 		@Column(name = "lecture_order")
 		private Integer order;
@@ -54,7 +48,6 @@ import lombok.Data;
 		public Lecture(LectureDTO lectureDTO, Course course){
 			this.title = lectureDTO.getTitle();
 			this.description = lectureDTO.getDescription();
-			this.video_url = lectureDTO.getVideo_url();
 			List<Section> sections = new ArrayList<>();
 
 			Optional.ofNullable(lectureDTO.getSections()).ifPresent(s -> {
@@ -96,10 +89,6 @@ import lombok.Data;
 			this.title = title;
 		}
 
-		public String getVideo_url() {
-			return video_url;
-		}
-
 		public void setSections(List<Section> sections) {
 
 			sections.forEach(s -> {
@@ -111,10 +100,6 @@ import lombok.Data;
 
 		public List<Section> getSections() {
 			return sections;
-		}
-
-		public void setVideo_url(String video_url) {
-			this.video_url = video_url;
 		}
 
 		public String getDescription() {

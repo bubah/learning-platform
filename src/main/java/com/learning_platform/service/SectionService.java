@@ -7,7 +7,6 @@ import com.learning_platform.model.Lecture;
 import com.learning_platform.model.UploadStatus;
 import com.learning_platform.repository.LectureRepository;
 import com.learning_platform.repository.SectionRepository;
-import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -36,7 +35,7 @@ public class SectionService {
 
     public SectionDTO createSection(SectionDTO sectionDTO){
         if(sectionDTO.getUploadStatus() == null){
-            sectionDTO.setUploadStatus(UploadStatus.NOT_STARTED);
+            sectionDTO.setUploadStatus(UploadStatus.PENDING);
         }
         UUID lectureId = sectionDTO.getLectureId();
         Lecture lecture = fetchLecture(lectureId);
@@ -53,7 +52,7 @@ public class SectionService {
         Section existingSection = fetchSection(id);
         Optional.ofNullable(updatedSection.getTitle()).ifPresent(existingSection::setTitle);
         Optional.ofNullable(updatedSection.getDescription()).ifPresent(existingSection::setDescription);
-        Optional.ofNullable(updatedSection.getContent()).ifPresent(existingSection::setContent);
+        Optional.ofNullable(updatedSection.getContentType()).ifPresent(existingSection::setContentType);
         Optional.ofNullable(updatedSection.getOrder()).ifPresent(existingSection::setOrder);
 
         return new SectionDTO(sectionRepository.save(existingSection));
@@ -69,7 +68,7 @@ public class SectionService {
         Section existingSection = fetchSection(id);
         Optional.ofNullable(sectionDTO.getTitle()).ifPresent(existingSection::setTitle);
         Optional.ofNullable(sectionDTO.getDescription()).ifPresent(existingSection::setDescription);
-        Optional.ofNullable(sectionDTO.getContent()).ifPresent(existingSection::setContent);
+        Optional.ofNullable(sectionDTO.getContentType()).ifPresent(existingSection::setContentType);
         Optional.ofNullable(sectionDTO.getOrder()).ifPresent(existingSection::setOrder);
 
         return new SectionDTO(sectionRepository.save(existingSection));

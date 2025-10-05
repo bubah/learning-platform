@@ -8,5 +8,9 @@ App is using Java 17
 
 `mvn flyway:migrate flyway:info`
 
+### Generate test report
+
+`./mvnw clean verify`
+
 ## Run Application
  `./mvnw spring-boot:run`

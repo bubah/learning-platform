@@ -43,7 +43,6 @@ public class LectureService {
         Lecture existingLecture = fetchLecture(id);
         Optional.ofNullable(updatedLecture.getTitle()).ifPresent(existingLecture::setTitle);
         Optional.ofNullable(updatedLecture.getDescription()).ifPresent(existingLecture::setDescription);
-        Optional.ofNullable(updatedLecture.getVideo_url()).ifPresent(existingLecture::setVideo_url);
         Optional.ofNullable(updatedLecture.getOrder()).ifPresent(existingLecture::setOrder);
         return new LectureDTO(lectureRepository.save(existingLecture));
     }
