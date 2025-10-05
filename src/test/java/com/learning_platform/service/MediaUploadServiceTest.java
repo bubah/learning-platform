@@ -1,5 +1,9 @@
 package com.learning_platform.service;
 
+import com.learning_platform.dto.CompletedPartDTO;
+import com.learning_platform.dto.GetPresingedUrlsRequestDTO;
+import com.learning_platform.dto.UploadMediaCompleteRequestDTO;
+import com.learning_platform.dto.UploadMediaInitRequestDTO;
 import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Course;
 import com.learning_platform.model.Lecture;
@@ -17,20 +21,27 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
+import software.amazon.awssdk.awscore.presigner.PresignedRequest;
 import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.http.SdkHttpMethod;
+import software.amazon.awssdk.http.SdkHttpRequest;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectAclRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
-import software.amazon.awssdk.services.s3.model.PutObjectResponse;
-import software.amazon.awssdk.services.s3.model.S3Exception;
+import software.amazon.awssdk.services.s3.model.*;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedUploadPartRequest;
+import software.amazon.awssdk.services.s3.presigner.model.UploadPartPresignRequest;
 
+import java.net.URI;
+import java.time.Instant;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Consumer;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class MediaUploadServiceTest {
@@ -133,5 +144,97 @@ public class MediaUploadServiceTest {
         Assertions.assertThrows(java.io.IOException.class, () -> {
             mediaUploadService.uploadFile(file, sectionId);
         });
+    }
+
+    @Test
+    public void shouldInitiateMultipartUpload() {
+        String fileKey = "courseA/lectureA/sectionA/filename.mp4";
+        String uploadId = "uploadId";
+        CreateMultipartUploadResponse expectedResponse = CreateMultipartUploadResponse.builder().uploadId(uploadId).build();
+        when(s3Client.createMultipartUpload(any(CreateMultipartUploadRequest.class))).thenReturn(expectedResponse);
+        String response = mediaUploadService.initiateMultipartUpload(fileKey);
+        assertEquals(uploadId, response);
+    }
+
+    @Test
+    public void shouldGetPresignedUrls() {
+        String fileKey = "courseA/lectureA/sectionA/filename.mp4";
+        String uploadId = "uploadId";
+        Integer partCount = 3;
+        String expectedUrl = "https://mock-s3-url";
+
+        // Mock the Consumer-style presignUploadPart
+        doAnswer(invocation -> {
+            Consumer<UploadPartPresignRequest.Builder> builderConsumer = invocation.getArgument(0);
+
+            // Build a dummy request and pass it to the consumer
+            UploadPartPresignRequest.Builder builder = UploadPartPresignRequest.builder();
+            builderConsumer.accept(builder);
+
+            // Return a mock PresignedUploadPartRequest
+            return PresignedUploadPartRequest.builder()
+                    .httpRequest(SdkHttpRequest.builder()
+                            .method(SdkHttpMethod.PUT)
+                            .uri(URI.create(expectedUrl))
+                            .build())
+                    .expiration(Instant.now())
+                    .isBrowserExecutable(true)
+                    .signedHeaders(Map.of("host", List.of("mock-s3-url")))
+                    .build();
+        }).when(s3Presigner).presignUploadPart(any(Consumer.class));
+
+        GetPresingedUrlsRequestDTO request = new GetPresingedUrlsRequestDTO.Builder()
+                .setKey(fileKey)
+                .setUploadId(uploadId)
+                .setPartCount(partCount)
+                .build();
+//        when(s3Presigner.presignUploadPart(any(UploadPartPresignRequest.class))).thenReturn(mockResponse);
+        List<String> response = mediaUploadService.generatePresignedUrls(request);
+        assertEquals(List.of(expectedUrl, expectedUrl, expectedUrl), response);
+    }
+
+    @Test
+    public void shouldCompleteUpload() {
+        String fileKey = "courseA/lectureA/sectionA/filename.mp4";
+        String uploadId = "uploadId";
+        CompletedPartDTO completedParts = new CompletedPartDTO();
+//        CompleteMultipartUploadRequest mockReq = CompleteMultipartUploadRequest.builder().multipartUpload().build();
+        UploadMediaCompleteRequestDTO request = new UploadMediaCompleteRequestDTO.Builder()
+                .setUploadId(uploadId)
+                .setKey(fileKey)
+                .setCompletedParts(List.of(completedParts))
+                .build();
+
+        mediaUploadService.completeMultipartUpload(request);
+
+        verify(s3Client).completeMultipartUpload(any(CompleteMultipartUploadRequest.class));
+    }
+
+    @Test
+    public void shouldGenerateObjectKey() {
+        String fileKey = "filename.mp4";
+        UUID sectionId = UUID.randomUUID();
+        UUID lectureId = UUID.randomUUID();
+        UUID courseId = UUID.randomUUID();
+
+        Course course = new Course();
+        course.setId(courseId);
+        Lecture lecture = new Lecture();
+        lecture.setId(lectureId);
+        lecture.setCourse(course);
+        Section section = new Section();
+        section.setId(sectionId);
+        section.setLecture(lecture);
+
+        String expectedKey = courseId + "/" + lectureId + "/" + sectionId + "/" + fileKey;
+
+        UploadMediaInitRequestDTO request = new UploadMediaInitRequestDTO.Builder()
+                .setSectionId(sectionId.toString())
+                .setFileName(fileKey)
+                .build();
+
+        when(sectionRepository.findById(any())).thenReturn(Optional.of(section));
+        String response = mediaUploadService.generateObjectKey(request);
+        assertEquals(response, expectedKey);
     }
 }
