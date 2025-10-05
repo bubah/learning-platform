@@ -2,6 +2,7 @@ package com.learning_platform.dto;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.learning_platform.model.ContentType;
 
 @JsonTypeInfo(
         use = JsonTypeInfo.Id.NAME,
@@ -12,9 +13,14 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
         @JsonSubTypes.Type(value = VideoContentDTO.class, name = "VIDEO"),
 })
 public abstract class ContentDTO {
-    private String type;
+    private ContentType type;
 
-//    public abstract void someContentSpecificLogic();
-    // getters/setters
+    public ContentType getType() {
+        return type;
+    }
+
+    public void setType(ContentType type) {
+        this.type = type;
+    }
 }
 

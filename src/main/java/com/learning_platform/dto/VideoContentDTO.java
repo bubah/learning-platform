@@ -1,5 +1,6 @@
 package com.learning_platform.dto;
 
+import com.learning_platform.model.ContentType;
 import com.learning_platform.model.UploadStatus;
 import com.learning_platform.model.VideoContent;
 
@@ -16,12 +17,14 @@ public class VideoContentDTO extends ContentDTO {
         this.s3Key = Optional.ofNullable(content.getS3Key());
         this.lengthSeconds = Optional.ofNullable(content.getLengthSeconds());
         this.uploadStatus = Optional.ofNullable(content.getUploadStatus());
+        setType(ContentType.VIDEO);
     }
 
     public VideoContentDTO(Builder builder) {
         this.s3Key = builder.s3Key;
         this.lengthSeconds = builder.lengthSeconds;
         this.uploadStatus = builder.uploadStatus;
+        setType(ContentType.VIDEO);
     }
 
     public String getS3Key() {
