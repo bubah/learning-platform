@@ -35,7 +35,7 @@ public class SectionService {
 
     public SectionDTO createSection(SectionDTO sectionDTO){
         if(sectionDTO.getUploadStatus() == null){
-            sectionDTO.setUploadStatus(UploadStatus.NOT_STARTED);
+            sectionDTO.setUploadStatus(UploadStatus.PENDING);
         }
         UUID lectureId = sectionDTO.getLectureId();
         Lecture lecture = fetchLecture(lectureId);

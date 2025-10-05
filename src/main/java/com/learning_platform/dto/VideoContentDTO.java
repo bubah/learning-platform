@@ -1,5 +1,6 @@
 package com.learning_platform.dto;
 
+import com.learning_platform.model.UploadStatus;
 import com.learning_platform.model.VideoContent;
 
 import java.util.Optional;
@@ -7,17 +8,20 @@ import java.util.Optional;
 public class VideoContentDTO extends ContentDTO {
     private Optional<String> s3Key = Optional.empty();
     private Optional<Integer> lengthSeconds = Optional.empty();
+    private Optional<UploadStatus> uploadStatus = Optional.empty();
 
     public VideoContentDTO() {}
 
     public VideoContentDTO(VideoContent content) {
         this.s3Key = Optional.ofNullable(content.getS3Key());
-        this.lengthSeconds = Optional.of(content.getLengthSeconds());
+        this.lengthSeconds = Optional.ofNullable(content.getLengthSeconds());
+        this.uploadStatus = Optional.ofNullable(content.getUploadStatus());
     }
 
     public VideoContentDTO(Builder builder) {
         this.s3Key = builder.s3Key;
         this.lengthSeconds = builder.lengthSeconds;
+        this.uploadStatus = builder.uploadStatus;
     }
 
     public String getS3Key() {
@@ -39,6 +43,7 @@ public class VideoContentDTO extends ContentDTO {
     public static class Builder {
         private Optional<String> s3Key = Optional.empty();
         private Optional<Integer> lengthSeconds = Optional.empty();
+        private Optional<UploadStatus> uploadStatus = Optional.empty();
 
         public Builder setS3Key(String key) {
             this.s3Key = Optional.ofNullable(key);
@@ -47,6 +52,11 @@ public class VideoContentDTO extends ContentDTO {
 
         public Builder setLengthSeconds(Integer lengthSeconds) {
             this.lengthSeconds = Optional.ofNullable(lengthSeconds);
+            return this;
+        }
+
+        public Builder setUploadStatus(UploadStatus uploadStatus) {
+            this.uploadStatus = Optional.ofNullable(uploadStatus);
             return this;
         }
 

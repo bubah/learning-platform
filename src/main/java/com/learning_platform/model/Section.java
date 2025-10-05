@@ -38,7 +38,7 @@ public class Section {
 
 	@Enumerated(EnumType.STRING)
 	@Column(name="upload_status", nullable=false)
-	private UploadStatus uploadStatus = UploadStatus.NOT_STARTED;
+	private UploadStatus uploadStatus = UploadStatus.PENDING;
 
 	@Column(name="created_at",  nullable=false, updatable=false)
 	@CreationTimestamp

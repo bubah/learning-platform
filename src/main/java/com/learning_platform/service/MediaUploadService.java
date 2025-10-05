@@ -111,7 +111,7 @@ public class MediaUploadService {
                 .build();
         try {
             s3Client.putObject(putObjectRequest, RequestBody.fromBytes(file.getBytes()));
-            section.setUploadStatus(UploadStatus.INPROGRESS);
+            section.setUploadStatus(UploadStatus.UPLOADING);
             sectionRepository.save(section);
         }catch (Exception e){
             throw new IOException("Failed to upload file: " + e.getMessage());

@@ -13,6 +13,9 @@ public class VideoContent extends Content {
     @Column(name = "length_seconds")
     private Integer lengthSeconds;
 
+    @Column(name = "upload_status")
+    private UploadStatus uploadStatus;
+
     public VideoContent() {}
 
     public VideoContent(VideoContentDTO videoContentDTO, Section section) {
@@ -35,5 +38,13 @@ public class VideoContent extends Content {
 
     public void setLengthSeconds(Integer lengthSeconds) {
         this.lengthSeconds = lengthSeconds;
+    }
+
+    public UploadStatus getUploadStatus() {
+        return uploadStatus;
+    }
+
+    public void setUploadStatus(UploadStatus uploadStatus) {
+        this.uploadStatus = uploadStatus;
     }
 }

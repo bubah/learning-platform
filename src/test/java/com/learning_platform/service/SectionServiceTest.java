@@ -92,7 +92,7 @@ public class SectionServiceTest {
         mockSection.setId(sectionId);
         mockSection.setTitle("Mock Section");
         mockSection.setDescription("Mock Description");
-        mockSection.setUploadStatus(UploadStatus.fromString("NOT_STARTED"));
+        mockSection.setUploadStatus(UploadStatus.fromString("PENDING"));
         mockSection.setLecture(lecture);
 
         when(sectionRepository.findById(sectionId)).thenReturn(Optional.of(mockSection));
