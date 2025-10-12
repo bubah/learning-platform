@@ -1,18 +1,18 @@
 package com.learning_platform.controller;
 
 import com.learning_platform.dto.*;
-import com.learning_platform.service.LectureService;
+import com.learning_platform.model.ContentType;
+import com.learning_platform.model.UpdateContentMetaData;
+import com.learning_platform.model.UploadStatus;
 import com.learning_platform.service.MediaUploadService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import software.amazon.awssdk.services.s3.model.CompletedPart;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 @RestController
@@ -29,6 +29,16 @@ public class MediaUploadController {
     public ResponseEntity<UploadMediaInitResponseDTO> initUpload(@Valid @RequestBody UploadMediaInitRequestDTO request) {
         String key = mediaUploadService.generateObjectKey(request);
         String uploadId = mediaUploadService.initiateMultipartUpload(key);
+
+        UpdateContentMetaData updateContentMetaData = new UpdateContentMetaData.Builder()
+                .setContentType(ContentType.VIDEO)
+                .setBucketKey(key)
+                .setUploadStatus(UploadStatus.PENDING)
+                .setSectionId(request.getSectionId())
+                .setUploadId(uploadId)
+                .build();
+
+        mediaUploadService.saveUploadMetadata(updateContentMetaData);
         return ResponseEntity.ok(new UploadMediaInitResponseDTO(uploadId, key));
     }
 
@@ -41,6 +51,13 @@ public class MediaUploadController {
     @PostMapping("/complete")
     public ResponseEntity<UploadMediaCompleteResponseDTO> completeUpload(@Valid @RequestBody UploadMediaCompleteRequestDTO request) {
         mediaUploadService.completeMultipartUpload(request);
+
+        UpdateContentMetaData updateContentMetaData = new UpdateContentMetaData.Builder()
+                .setUploadStatus(UploadStatus.READY)
+                .setSectionId(request.getSectionId())
+                .build();
+
+        mediaUploadService.saveUploadMetadata(updateContentMetaData);
         return ResponseEntity.ok(new UploadMediaCompleteResponseDTO("completed"));
     }
 

@@ -43,6 +43,14 @@ public class VideoContentDTO extends ContentDTO {
         this.lengthSeconds = Optional.ofNullable(lengthSeconds);
     }
 
+    public UploadStatus getUploadStatus() {
+        return uploadStatus.orElse(null);
+    }
+
+    public void setUploadStatus(UploadStatus uploadStatus) {
+        this.uploadStatus = Optional.ofNullable(uploadStatus);
+    }
+
     public static class Builder {
         private Optional<String> s3Key = Optional.empty();
         private Optional<Integer> lengthSeconds = Optional.empty();

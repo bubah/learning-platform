@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 public class UploadMediaCompleteRequestDTO {
+    private Optional<String> contentId = Optional.empty();
+    private Optional<String> sectionId = Optional.empty();
     private Optional<String> uploadId = Optional.empty();
     private Optional<String> key = Optional.empty();
     private Optional<List<CompletedPartDTO>> completedParts = Optional.empty();
@@ -14,9 +16,27 @@ public class UploadMediaCompleteRequestDTO {
     }
 
     public UploadMediaCompleteRequestDTO(Builder builder) {
+        this.contentId = builder.contentId;
+        this.sectionId = builder.sectionId;
         this.uploadId = builder.uploadId;
         this.key = builder.key;
         this.completedParts = builder.completedParts;
+    }
+
+    public String getContentId() {
+        return contentId.orElse(null);
+    }
+
+    public void setContentId(String contentId) {
+        this.contentId = Optional.ofNullable(contentId);
+    }
+
+    public String getSectionId() {
+        return sectionId.orElse(null);
+    }
+
+    public void setSectionId(String sectionId) {
+        this.sectionId = Optional.ofNullable(sectionId);
     }
 
     public String getUploadId() {
@@ -44,9 +64,21 @@ public class UploadMediaCompleteRequestDTO {
     }
 
     public static class Builder {
+        private Optional<String> contentId = Optional.empty();
+        private Optional<String> sectionId = Optional.empty();
         private Optional<String> uploadId = Optional.empty();
         private Optional<String> key = Optional.empty();
         private Optional<List<CompletedPartDTO>> completedParts = Optional.empty();
+
+        public Builder setContentId(String contentId) {
+            this.contentId = Optional.ofNullable(contentId);
+            return this;
+        }
+
+        public Builder setSectionId(String sectionId) {
+            this.sectionId = Optional.ofNullable(sectionId);
+            return this;
+        }
 
         public Builder setKey(String key) {
             this.key = Optional.ofNullable(key);

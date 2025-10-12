@@ -8,6 +8,7 @@ import com.learning_platform.exceptions.ResourceNotFoundException;
 import com.learning_platform.model.Course;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.model.Section;
+import com.learning_platform.repository.ContentRepository;
 import com.learning_platform.repository.SectionRepository;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -57,6 +58,9 @@ public class MediaUploadServiceTest {
     @Mock
     private SectionRepository sectionRepository;
 
+    @Mock
+    private ContentRepository contentRepository;
+
     @InjectMocks
     private MediaUploadService mediaUploadService;
 
@@ -65,7 +69,7 @@ public class MediaUploadServiceTest {
         // Initialize mocks and any other setup needed before each test
         // This can include setting up the S3Client, S3Presigner, and SectionRepository mocks
         this.bucketName = "expected/file/path"; // Replace with the expected file path
-        this.mediaUploadService = new MediaUploadService(s3Client, s3Presigner, bucketName, sectionRepository);
+        this.mediaUploadService = new MediaUploadService(s3Client, s3Presigner, bucketName, sectionRepository, contentRepository);
     }
 
 
