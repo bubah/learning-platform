@@ -1,9 +1,10 @@
 package com.learning_platform.model;
 
 public enum UploadStatus {
-    NOT_STARTED,
-    INPROGRESS,
-    COMPLETE;
+    PENDING,
+    UPLOADING,
+    FAILED,
+    READY;
 
     public static UploadStatus fromString(String status) {
         for (UploadStatus s : UploadStatus.values()) {

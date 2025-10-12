@@ -89,7 +89,6 @@ public class LectureServiceTest {
         lectureDTO.setCourseId(UUID.randomUUID());
         lectureDTO.setTitle("New Lecture");
         lectureDTO.setDescription("Lecture Description");
-        lectureDTO.setVideo_url("http://example.com/video");
         Lecture mockLecture = new Lecture();
         mockLecture.setId(UUID.randomUUID());
         when(lectureRepository.save(ArgumentMatchers.any(Lecture.class))).thenReturn(mockLecture);
@@ -110,7 +109,6 @@ public class LectureServiceTest {
         LectureDTO updatedLecture = new LectureDTO();
         updatedLecture.setTitle("Updated Lecture");
         updatedLecture.setDescription("Updated Description");
-        updatedLecture.setVideo_url("http://example.com/updated_video");
         Lecture existingLecture = new Lecture();
         existingLecture.setId(lectureId);
         when(lectureRepository.findById(lectureId)).thenReturn(Optional.of(existingLecture));
@@ -122,7 +120,6 @@ public class LectureServiceTest {
         // Assert
         assertEquals(updatedLecture.getTitle(), result.getTitle());
         assertEquals(updatedLecture.getDescription(), result.getDescription());
-        assertEquals(updatedLecture.getVideo_url(), result.getVideo_url());
         verify(lectureRepository).findById(lectureId);
         verify(lectureRepository).save(existingLecture);
     }

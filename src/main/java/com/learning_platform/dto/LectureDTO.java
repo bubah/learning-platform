@@ -11,8 +11,7 @@ public class LectureDTO {
     private Optional<UUID> id = Optional.empty() ;
     private Optional<String> title = Optional.empty();
     private Optional<String> description = Optional.empty();;
-    private Optional<List<SectionDTO>> sections= Optional.empty();;
-    private Optional<String> video_url = Optional.empty();
+    private Optional<List<SectionDTO>> sections = Optional.empty();;
     private Optional<Integer> order = Optional.empty();
     private Optional<UUID> courseId = Optional.empty();
 
@@ -23,7 +22,6 @@ public class LectureDTO {
         this.id = Optional.ofNullable(lecture.getId());
         this.title = Optional.ofNullable(lecture.getTitle());
         this.description = Optional.ofNullable(lecture.getDescription());
-        this.video_url = Optional.ofNullable(lecture.getVideo_url());
         this.sections = Optional.ofNullable(lecture.getSections())
                 .map(lectures -> lectures.stream()
                         .map(SectionDTO::new)
@@ -38,7 +36,6 @@ public class LectureDTO {
         this.title = builder.title;
         this.description = builder.description;
         this.sections = builder.sections;
-        this.video_url = builder.video_url;
         this.order = builder.order;
         this.courseId = builder.courseId;
     }
@@ -49,14 +46,6 @@ public class LectureDTO {
 
     public void setId(UUID id) {
         this.id = Optional.ofNullable(id);
-    }
-
-    public String getVideo_url() {
-        return video_url.orElse(null);
-    }
-
-    public void setVideo_url(String video_url) {
-        this.video_url = Optional.ofNullable(video_url);
     }
 
     public List<SectionDTO> getSections() {

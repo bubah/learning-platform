@@ -1,8 +1,10 @@
 package com.learning_platform.service;
 
 import com.learning_platform.dto.SectionDTO;
+import com.learning_platform.model.ContentType;
 import com.learning_platform.model.Lecture;
 import com.learning_platform.model.Section;
+import com.learning_platform.model.UploadStatus;
 import com.learning_platform.repository.LectureRepository;
 import com.learning_platform.repository.SectionRepository;
 import org.junit.jupiter.api.Test;
@@ -90,6 +92,7 @@ public class SectionServiceTest {
         mockSection.setId(sectionId);
         mockSection.setTitle("Mock Section");
         mockSection.setDescription("Mock Description");
+        mockSection.setUploadStatus(UploadStatus.fromString("PENDING"));
         mockSection.setLecture(lecture);
 
         when(sectionRepository.findById(sectionId)).thenReturn(Optional.of(mockSection));
@@ -125,7 +128,7 @@ public class SectionServiceTest {
         sectionDTO.setTitle("New Section");
         sectionDTO.setDescription("New Description");
         sectionDTO.setOrder(1);
-        sectionDTO.setContent("New Content");
+        sectionDTO.setContentType(ContentType.fromString("VIDEO"));
         sectionDTO.setLectureId(lectureId);
 
         Lecture lecture = new Lecture();
@@ -151,7 +154,7 @@ public class SectionServiceTest {
         updatedSection.setTitle("Updated Section");
         updatedSection.setDescription("Updated Description");
         updatedSection.setOrder(2);
-        updatedSection.setContent("Updated Content");
+        updatedSection.setContentType(ContentType.VIDEO);
 
         Lecture lecture = new Lecture();
         lecture.setId(UUID.randomUUID());

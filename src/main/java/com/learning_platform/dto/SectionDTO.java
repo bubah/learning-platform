@@ -1,56 +1,47 @@
 package com.learning_platform.dto;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.learning_platform.model.Lecture;
-import com.learning_platform.model.Section;
-import com.learning_platform.model.UploadStatus;
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.UpdateTimestamp;
+import com.learning_platform.model.*;
 
-import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
 public class SectionDTO {
     private Optional<UUID> id = Optional.empty();
     private Optional<String> title = Optional.empty();
-    private Optional<String> content = Optional.empty();
+    private Optional<ContentType> contentType = Optional.empty();
     private Optional<String> description = Optional.empty();
     private Optional<Integer> order = Optional.empty();
     private Optional<UUID> lectureId = Optional.empty();
     private Optional<UploadStatus> uploadStatus = Optional.empty();
+    private Optional<ContentDTO> content = Optional.empty();
 
     public SectionDTO(){}
-
-    public SectionDTO(String title, String description, String content, Integer order, UUID lectureId, UploadStatus uploadStatus){
-        this.title = Optional.of(title);
-        this.description = Optional.of(description);
-        this.content = Optional.of(content);
-        this.order = Optional.of(order);
-        this.lectureId = Optional.of(lectureId);
-        this.uploadStatus = Optional.of(uploadStatus);
-    }
 
     public SectionDTO(Section section){
         this.id = Optional.ofNullable(section.getId());
         this.title = Optional.ofNullable(section.getTitle());
         this.description = Optional.ofNullable(section.getDescription());
-        this.content = Optional.ofNullable(section.getContent());
+        this.contentType = Optional.ofNullable(section.getContentType());
         this.order = Optional.ofNullable(section.getOrder());
         this.lectureId = Optional.ofNullable(section.getLecture().getId());
         this.uploadStatus = Optional.ofNullable(section.getUploadStatus());
+        Content content1 = section.getContent();
+        ContentDTO contentDTO;
+        if(content1 instanceof VideoContent videoContent) {
+            contentDTO = new VideoContentDTO(videoContent);
+            this.content = Optional.of(contentDTO);
+        }
     }
 
     public SectionDTO(Builder builder){
         this.id = builder.id;
         this.title = builder.title;
         this.description = builder.description;
-        this.content = builder.content;
+        this.contentType = builder.contentType;
         this.order = builder.order;
         this.lectureId = builder.lectureId;
         this.uploadStatus = builder.uploadStatus;
+        this.content = builder.content;
     }
 
     public UUID getId() {
@@ -69,12 +60,12 @@ public class SectionDTO {
         this.title = Optional.ofNullable(title);
     }
 
-    public String getContent() {
-        return content.orElse(null);
+    public ContentType getContentType() {
+        return contentType.orElse(null);
     }
 
-    public void setContent(String content) {
-        this.content = Optional.ofNullable(content);
+    public void setContentType(ContentType contentType) {
+        this.contentType = Optional.ofNullable(contentType);
     }
 
     public String getDescription() {
@@ -109,15 +100,24 @@ public class SectionDTO {
         this.uploadStatus = Optional.ofNullable(uploadStatus);
     }
 
+    public ContentDTO getContent() {
+        return content.orElse(null);
+    }
+
+    public void setContent(ContentDTO content) {
+        this.content = Optional.ofNullable(content);
+    }
+
     // Static inner Builder class
     public static class Builder {
         private Optional<UUID> id = Optional.empty();
         private Optional<String> title = Optional.empty();
-        private Optional<String> content = Optional.empty();
+        private Optional<ContentType> contentType = Optional.empty();
         private Optional<String> description = Optional.empty();
         private Optional<Integer> order = Optional.empty();
         private Optional<UUID> lectureId = Optional.empty();
         private Optional<UploadStatus> uploadStatus = Optional.empty();
+        private Optional<ContentDTO> content = Optional.empty();
 
         public Builder setId(UUID id) {
             this.id = Optional.ofNullable(id);
@@ -134,8 +134,8 @@ public class SectionDTO {
             return this;
         }
 
-        public Builder setContent(String content) {
-            this.content = Optional.ofNullable(content);
+        public Builder setContentType(ContentType contentType) {
+            this.contentType = Optional.ofNullable(contentType);
             return this;
         }
 
@@ -151,6 +151,11 @@ public class SectionDTO {
 
         public Builder setUploadStatus(UploadStatus uploadStatus) {
             this.uploadStatus = Optional.ofNullable(uploadStatus);
+            return this;
+        }
+
+        public Builder setContent(ContentDTO content) {
+            this.content = Optional.ofNullable(content);
             return this;
         }
 
